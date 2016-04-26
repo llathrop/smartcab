@@ -12,21 +12,28 @@ class LearningAgent(Agent):
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
-        self.availableAction=[None, 'forward', 'left', 'right']   
-        self.lastReward=0
+        self.availableAction = [None, 'forward', 'left', 'right']   
+        self.lastReward      = 0
+        self.lastAction      = None
+        self.lastWaypoint    = None
+        self.next_waypoint   = None
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
         # TODO: Prepare for a new trip; reset any variables here, if required
+        print "----------------------------------------------------------"
+        print"RESET, Final state:\n", self.state
+        print "----------------------------------------------------------"
 
     def update(self, t):
         # Gather inputs
+        self.lastWaypoint = self.next_waypoint
         self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
         inputs = self.env.sense(self)
         deadline = self.env.get_deadline(self)
 
         # TODO: Update state
-        self.state=(deadline, inputs,self.next_waypoint, self.lastReward)
+        self.state=(deadline, inputs,self.next_waypoint,self.lastAction, self.lastWaypoint, self.lastReward)
           
         # TODO: Select action according to your policy
 
@@ -34,15 +41,15 @@ class LearningAgent(Agent):
             action = self.availableAction[random.randint(0,3)]
         else:
             action = self.next_waypoint
-
-        #action = self.next_waypoint          
+            
+        self.lastAction=action
     
         # Execute action and get reward
         reward = self.env.act(self, action)
         self.lastReward=reward
         # TODO: Learn policy based on state, action, reward
 
-        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}, next_waypoint = {}".format(deadline, inputs, action, reward,self.next_waypoint)  # [debug]
+        print "LearningAgent.update(): self.state{}, action = {}, reward = {}, next_waypoint = {}".format(self.state, action, reward,self.next_waypoint, )  # [debug]
 
 
 def run():
