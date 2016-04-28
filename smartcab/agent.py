@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[41]:
+# In[1]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -57,13 +57,13 @@ def run(agentType,trials=10, gui=False, deadline=False):
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[42]:
+# In[6]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
 
     def __init__(self, env):
-        super(LearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None, and a default color
+        super(RandomAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None, and a default color
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
@@ -104,7 +104,7 @@ class RandomAgent(Agent):
         #print "LearningAgent.update():deadline{}, inputs{}, action = {}, reward = {}, next_waypoint = {}".format(deadline, inputs, action, reward,self.next_waypoint, )  # [debug]
 
 
-# In[43]:
+# In[7]:
 
 run(agentType=RandomAgent,trials=2)
 
@@ -116,13 +116,13 @@ run(agentType=RandomAgent,trials=2)
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[44]:
+# In[11]:
 
-class LearningAgent(Agent):
+class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
 
     def __init__(self, env):
-        super(LearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None, and a default color
+        super(StateAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None, and a default color
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
@@ -133,22 +133,6 @@ class LearningAgent(Agent):
         self.next_waypoint   = None
         self.goal=0
         self.runs=0
-
-    def reset(self, destination=None):
-        self.planner.route_to(destination)
-        # TODO: Prepare for a new trip; reset any variables here, if required
-        print "----------------------------------------------------------"
-        print"RESET, Final state:\n", self.state
-        self.runs+=1
-        try:
-            if self.state[0]>0:
-                print "PASS! {} steps to goal,Goal reached {}times out of {}!".format(self.state[0],self.goal,self.runs)
-                self.goal+=1
-            else:
-                print "FAIL! {} steps to goal,Goal reached {}times out of {}!".format(self.state[0],self.goal,self.runs)
-        except:
-            print "Broke! Goal reached {}times out of {}!".format(self.goal,self.runs)
-        print "----------------------------------------------------------"
 
     def update(self, t):
         # Gather inputs
@@ -162,10 +146,6 @@ class LearningAgent(Agent):
           
         # TODO: Select action according to your policy
 
-        #if self.lastReward <0:
-        #    action = self.availableAction[random.randint(0,3)]
-        #else:
-        #    action = self.next_waypoint
         action = self.availableAction[random.randint(0,3)]    
         self.lastAction=action
     
@@ -178,9 +158,9 @@ class LearningAgent(Agent):
 
 
 
-# In[ ]:
+# In[12]:
 
-run(agentType=LearningAgent,trials=2)
+run(agentType=StateAgent,trials=2)
 
 
 # ## Implement Q-Learning
@@ -203,11 +183,11 @@ run(agentType=LearningAgent,trials=2)
 # 
 #  PREVIOUS
 
-# In[31]:
+# In[ ]:
 
 if __name__ == '__main__':
     print  "running...."
-    run(agentType=LearningAgent,trials=2, display=True)
+    run(agentType=RandomAgent,trials=2, gui=True)
 
 
 # #EOF
