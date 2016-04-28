@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[22]:
+# In[41]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -26,7 +26,7 @@ from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
 
-def run(agentType=Agent,trials=10, gui=False, deadline=False):
+def run(agentType,trials=10, gui=False, deadline=False):
     """Run the agent for a finite number of trials."""
 
     # Set up environment and agent
@@ -57,7 +57,66 @@ def run(agentType=Agent,trials=10, gui=False, deadline=False):
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[23]:
+# In[42]:
+
+class RandomAgent(Agent):
+    """An agent that learns to drive in the smartcab world."""
+
+    def __init__(self, env):
+        super(LearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None, and a default color
+        self.color = 'red'  # override color
+        self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
+        # TODO: Initialize any additional variables here
+        self.availableAction = [None, 'forward', 'left', 'right']   
+        self.goal=0
+        self.runs=0
+
+    def reset(self, destination=None):
+        self.planner.route_to(destination)
+        # TODO: Prepare for a new trip; reset any variables here, if required
+        print "----------------------------------------------------------"
+        print"RESET, Final state:\n", self.state
+        self.runs+=1
+        try:
+            if self.state[0]>0:
+                print "PASS! {} steps to goal,Goal reached {}times out of {}!".format(self.state[0],self.goal,self.runs)
+                self.goal+=1
+            else:
+                print "FAIL! {} steps to goal,Goal reached {}times out of {}!".format(self.state[0],self.goal,self.runs)
+        except:
+            print "Broke! Goal reached {}times out of {}!".format(self.goal,self.runs)
+        print "----------------------------------------------------------"
+
+    def update(self, t):
+        # Gather inputs
+        self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
+        inputs = self.env.sense(self)
+        deadline = self.env.get_deadline(self)
+
+        # TODO: Select action according to your policy
+        action = self.availableAction[random.randint(0,3)]    
+        
+        # Execute action and get reward
+        reward = self.env.act(self, action)
+        self.lastReward=reward
+        # TODO: Learn policy based on state, action, reward
+        
+        #print "LearningAgent.update():deadline{}, inputs{}, action = {}, reward = {}, next_waypoint = {}".format(deadline, inputs, action, reward,self.next_waypoint, )  # [debug]
+
+
+# In[43]:
+
+run(agentType=RandomAgent,trials=2)
+
+
+# 
+# ## Identify and update state
+# 
+# Identify a set of states that you think are appropriate for modeling the driving agent. The main source of state variables are current inputs, but not all of them may be worth representing. Also, you can choose to explicitly define states, or use some combination (vector) of inputs as an implicit state.
+# 
+# At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
+
+# In[44]:
 
 class LearningAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -119,17 +178,10 @@ class LearningAgent(Agent):
 
 
 
-# In[24]:
+# In[ ]:
 
 run(agentType=LearningAgent,trials=2)
 
-
-# 
-# ## Identify and update state
-# 
-# Identify a set of states that you think are appropriate for modeling the driving agent. The main source of state variables are current inputs, but not all of them may be worth representing. Also, you can choose to explicitly define states, or use some combination (vector) of inputs as an implicit state.
-# 
-# At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
 # ## Implement Q-Learning
 # 
@@ -151,11 +203,11 @@ run(agentType=LearningAgent,trials=2)
 # 
 #  PREVIOUS
 
-# In[25]:
+# In[31]:
 
 if __name__ == '__main__':
     print  "running...."
-    run(agentType=LearningAgent,trials=2)
+    run(agentType=LearningAgent,trials=2, display=True)
 
 
 # #EOF
