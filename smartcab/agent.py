@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[45]:
+# In[72]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -26,13 +26,13 @@ from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
 
-def run(agentType,trials=10, gui=False, nodeadline=False, delay=0):
+def run(agentType,trials=10, gui=False, deadline=False, delay=0):
     """Run the agent for a finite number of trials."""
 
     # Set up environment and agent
     e = Environment()  # create environment (also adds some dummy traffic)
     a = e.create_agent(agentType)  # create agent
-    e.set_primary_agent(a, enforce_deadline=nodeadline)  # specify agent to track
+    e.set_primary_agent(a, enforce_deadline=deadline)  # specify agent to track
     # NOTE: You can set enforce_deadline=False while debugging to allow longer trials
 
     # Now simulate it
@@ -42,6 +42,7 @@ def run(agentType,trials=10, gui=False, nodeadline=False, delay=0):
     sim.run(n_trials=trials)  # run for a specified number of trials
     # NOTE: To quit midway, press Esc or close pygame window, or hit Ctrl+C on the command-line
     print "Successfull runs = {}".format(a.goal)
+    print "----------------------------------------------------------"
 
 
 # ## Implement a basic driving agent
@@ -58,7 +59,7 @@ def run(agentType,trials=10, gui=False, nodeadline=False, delay=0):
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[46]:
+# In[64]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -85,7 +86,7 @@ class RandomAgent(Agent):
                 print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.state[0],self.goal,self.runs)
                 pass
         except:
-            print "Broke! Goal reached {} times out of {}!".format(self.goal,self.runs)
+            print "Trial 0 - Goal reached {} times out of {}!".format(self.goal,self.runs)
             pass
         print "----------------------------------------------------------"
 
@@ -106,18 +107,19 @@ class RandomAgent(Agent):
         #print "LearningAgent.update():deadline{}, inputs{}, action = {}, reward = {}, next_waypoint = {}".format(deadline, inputs, action, reward,self.next_waypoint, )  # [debug]
 
 
-# In[49]:
+# In[70]:
 
-run(agentType=RandomAgent,trials=2, nodeadline=False) #Example of a random run
-
-
-# In[50]:
-
-run(agentType=RandomAgent,trials=2, nodeadline=True) #Example of a random run, with no deadline 
+run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# **Answer**
-# When we run an agent with a random action policy, we see that it will move about the board with no direction, and will eventually reach the destination. If we allow the use of deadlines, we see that the agent rarely reaches the destination, although it may still occur.
+# In[71]:
+
+run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
+
+
+# ### Random Agent Answer:
+# 
+# When we run an agent with a random action policy, we see that it will move about the board with no pattern, and will eventually reach the destination. If we allow the use of deadlines, we see that the agent rarely reaches the destination in time, although it may still occur.
 
 # 
 # ## Identify and update state
@@ -126,7 +128,7 @@ run(agentType=RandomAgent,trials=2, nodeadline=True) #Example of a random run, w
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[51]:
+# In[67]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -168,9 +170,9 @@ class StateAgent(RandomAgent):
 
 
 
-# In[52]:
+# In[69]:
 
-run(agentType=StateAgent,trials=2)
+run(agentType=StateAgent,trials=5)
 
 
 # ## Implement Q-Learning
