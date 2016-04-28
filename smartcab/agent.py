@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[21]:
+# In[22]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -26,7 +26,7 @@ from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
 
-def run(agentType=agent.LearningAgent,trials=10, gui=False, deadline=False):
+def run(agentType=Agent,trials=10, gui=False, deadline=False):
     """Run the agent for a finite number of trials."""
 
     # Set up environment and agent
@@ -57,7 +57,7 @@ def run(agentType=agent.LearningAgent,trials=10, gui=False, deadline=False):
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[18]:
+# In[23]:
 
 class LearningAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -119,7 +119,7 @@ class LearningAgent(Agent):
 
 
 
-# In[19]:
+# In[24]:
 
 run(agentType=LearningAgent,trials=2)
 
@@ -151,13 +151,11 @@ run(agentType=LearningAgent,trials=2)
 # 
 #  PREVIOUS
 
-# In[20]:
+# In[25]:
 
 if __name__ == '__main__':
-    run()
+    print  "running...."
+    run(agentType=LearningAgent,trials=2)
 
 
-# In[ ]:
-
-#eof
-
+# #EOF
