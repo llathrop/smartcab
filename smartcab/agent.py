@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[72]:
+# In[4]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -20,6 +20,13 @@ import string
 import sys
 import os
 import random
+
+import numpy as np
+import pandas as pd
+from IPython.display import display # Allows the use of display() for DataFrames
+
+# Show matplotlib plots inline (nicely formatted in the notebook)
+get_ipython().magic(u'matplotlib inline')
 
 sys.path.append("./smartcab/")
 from environment import Agent, Environment
@@ -43,6 +50,7 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
     # NOTE: To quit midway, press Esc or close pygame window, or hit Ctrl+C on the command-line
     print "Successfull runs = {}".format(a.goal)
     print "----------------------------------------------------------"
+print "Environment ready"
 
 
 # ## Implement a basic driving agent
@@ -59,7 +67,7 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[64]:
+# In[5]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -105,14 +113,15 @@ class RandomAgent(Agent):
         # TODO: Learn policy based on state, action, reward
         
         #print "LearningAgent.update():deadline{}, inputs{}, action = {}, reward = {}, next_waypoint = {}".format(deadline, inputs, action, reward,self.next_waypoint, )  # [debug]
+print "RandomAgent ready"
 
 
-# In[70]:
+# In[7]:
 
 run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[71]:
+# In[8]:
 
 run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -128,7 +137,7 @@ run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[67]:
+# In[9]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -139,9 +148,6 @@ class StateAgent(RandomAgent):
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
         self.availableAction = [None, 'forward', 'left', 'right']   
-        self.lastReward      = 0
-        self.lastAction      = None
-        self.lastWaypoint    = None
         self.next_waypoint   = None
         self.goal=0
         self.runs=0
@@ -154,7 +160,7 @@ class StateAgent(RandomAgent):
         deadline = self.env.get_deadline(self)
 
         # TODO: Update state
-        self.state=(deadline, inputs,self.next_waypoint,self.lastAction, self.lastWaypoint, self.lastReward)
+        self.state=(deadline, inputs,self.next_waypoint)
           
         # TODO: Select action according to your policy
 
@@ -167,10 +173,10 @@ class StateAgent(RandomAgent):
         # TODO: Learn policy based on state, action, reward
 
         #print "LearningAgent.update(): self.state{}, action = {}, reward = {}, next_waypoint = {}".format(self.state, action, reward,self.next_waypoint, )  # [debug]
+print "StateAgent Ready"
 
 
-
-# In[69]:
+# In[10]:
 
 run(agentType=StateAgent,trials=5)
 
