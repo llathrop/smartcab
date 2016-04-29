@@ -137,7 +137,7 @@ run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[9]:
+# In[41]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -151,32 +151,55 @@ class StateAgent(RandomAgent):
         self.next_waypoint   = None
         self.goal=0
         self.runs=0
+        self.features={}
+        
+    def reset(self, destination=None):
+        self.planner.route_to(destination)
+        # TODO: Prepare for a new trip; reset any variables here, if required
+        #print"RESET, Final state:\n", self.state
+        self.stateFeature=pd.DataFrame(self.features)
+        print self.stateFeature.T.head(5)
+        
+        self.runs+=1
+        try:
+            if self.state[0]>0:
+                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.state[0],self.goal,self.runs)
+                self.goal+=1
+            else:
+                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.state[0],self.goal,self.runs)
+                pass
+        except:
+            print "Trial 0 - Goal reached {} times out of {}!".format(self.goal,self.runs)
+            pass
+        print "----------------------------------------------------------"
         
     def update(self, t):
         # Gather inputs
         self.lastWaypoint = self.next_waypoint
         self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
         inputs = self.env.sense(self)
+        
         deadline = self.env.get_deadline(self)
 
         # TODO: Update state
-        self.state=(deadline, inputs,self.next_waypoint)
-          
+        inputs['deadline']=deadline
+        inputs['next_waypoint']=self.next_waypoint
+        self.state= inputs    
+        self.features[len(self.features)]=self.state
+
         # TODO: Select action according to your policy
 
         action = self.availableAction[random.randint(0,3)]    
-        self.lastAction=action
     
         # Execute action and get reward
         reward = self.env.act(self, action)
-        self.lastReward=reward
         # TODO: Learn policy based on state, action, reward
 
         #print "LearningAgent.update(): self.state{}, action = {}, reward = {}, next_waypoint = {}".format(self.state, action, reward,self.next_waypoint, )  # [debug]
 print "StateAgent Ready"
 
 
-# In[10]:
+# In[42]:
 
 run(agentType=StateAgent,trials=5)
 
