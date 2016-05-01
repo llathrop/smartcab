@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[4]:
+# In[21]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -50,6 +50,8 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
     # NOTE: To quit midway, press Esc or close pygame window, or hit Ctrl+C on the command-line
     print "Successfull runs = {}".format(a.goal)
     print "----------------------------------------------------------"
+    print "featuers:\n",pd.DataFrame(a.features).T.head(5)
+    
 print "Environment ready"
 
 
@@ -67,7 +69,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[5]:
+# In[22]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -80,12 +82,13 @@ class RandomAgent(Agent):
         self.availableAction = [None, 'forward', 'left', 'right']   
         self.goal=0
         self.runs=0
+        self.features={}
+
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
         # TODO: Prepare for a new trip; reset any variables here, if required
         #print"RESET, Final state:\n", self.state
-        self.runs+=1
         try:
             if self.state[0]>0:
                 print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.state[0],self.goal,self.runs)
@@ -116,12 +119,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[7]:
+# In[23]:
 
 run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[8]:
+# In[24]:
 
 run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -137,7 +140,7 @@ run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[57]:
+# In[25]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -161,12 +164,14 @@ class StateAgent(RandomAgent):
         inputs = self.env.sense(self)
         
         deadline = self.env.get_deadline(self)
+        
+        self.runs+=1
 
         # TODO: Update state
         inputs['deadline']=deadline
         inputs['next_waypoint']=self.next_waypoint
         self.state= inputs    
-
+        self.features[self.runs]=self.state
         # TODO: Select action according to your policy
 
         action = self.availableAction[random.randint(0,3)]    
@@ -179,7 +184,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[58]:
+# In[26]:
 
 run(agentType=StateAgent,trials=5)
 
@@ -204,7 +209,7 @@ run(agentType=StateAgent,trials=5)
 # 
 #  PREVIOUS
 
-# In[53]:
+# In[81]:
 
 if __name__ == '__main__':
     print  "running...."
