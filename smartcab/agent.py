@@ -73,7 +73,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[84]:
+# In[147]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -95,11 +95,11 @@ class RandomAgent(Agent):
         self.features.append({})
         self.steps=0
         try:
-            if self.state[0]>0:
-                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.state[0],self.goal,len(self.features))
+            if self.state['deadline']>0:
+                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.state['deadline'],self.goal,len(self.features))
                 self.goal+=1
             else:
-                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.state[0],self.goal,len(self.features))
+                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.state['deadline'],self.goal,len(self.features))
                 pass
         except:
             print "Trial 0 - Goal reached {} times out of {}!".format(self.goal,len(self.features))
@@ -112,7 +112,9 @@ class RandomAgent(Agent):
         self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
         inputs = self.env.sense(self)
         deadline = self.env.get_deadline(self)
-        self.state=(deadline,inputs)
+        inputs['deadline']=deadline
+        self.state=inputs
+    
         # TODO: Select action according to your policy
         action = self.availableAction[random.randint(0,3)]    
         
@@ -121,18 +123,19 @@ class RandomAgent(Agent):
         self.lastReward=reward
         # TODO: Learn policy based on state, action, reward
         
-        #print "LearningAgent.update():deadline{}, inputs{}, action = {}, reward = {}, next_waypoint = {}".format(deadline, inputs, action, reward,self.next_waypoint, )  # [debug]
+        #print "LearningAgent.update():deadline{}, inputs{}, action = {}, reward = {}, next_waypoint = {}".format(
+        #                                            deadline, inputs, action, reward,self.next_waypoint, )  # [debug]
 print "RandomAgent ready"
 
 
-# In[85]:
+# In[152]:
 
-run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
+out=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[86]:
+# In[153]:
 
-run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
+out=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
 
 # ### Random Agent Answer:
@@ -146,7 +149,7 @@ run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[87]:
+# In[154]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -185,11 +188,12 @@ class StateAgent(RandomAgent):
         reward = self.env.act(self, action)
         # TODO: Learn policy based on state, action, reward
 
-        #print "LearningAgent.update(): self.state{}, action = {}, reward = {}, next_waypoint = {}".format(self.state, action, reward,self.next_waypoint, )  # [debug]
+        #print "LearningAgent.update(): self.state{}, action = {}, reward = {}, next_waypoint = {}".format(
+        #                                        self.state, action, reward,self.next_waypoint, )  # [debug]
 print "StateAgent Ready"
 
 
-# In[93]:
+# In[155]:
 
 stateFeatures=run(agentType=StateAgent,trials=5)
 
@@ -199,14 +203,27 @@ import matplotlib.pyplot as plt
 
 for f in stateFeatures:
     print "features:{}\n".format(len(f))
-    print f.head(5)
+    #print f.head(5)
     fig, axes = plt.subplots(nrows=2, ncols=3,figsize=(14,6))
 
-    #pd.value_counts(f.left.ravel()).plot(kind='bar', title="Left",ax=axes[0,0])
-    pd.value_counts(f.light.ravel()).plot(kind='bar', title="Light",ax=axes[0,1])
+    try:
+        pd.value_counts(f.left.ravel()).plot(kind='bar', title="Left",ax=axes[0,0])
+    except:
+        pass
+    try:
+        pd.value_counts(f.light.ravel()).plot(kind='bar', title="Light",ax=axes[0,1])
+    except:
+        pass
     pd.value_counts(f.next_waypoint.ravel()).plot(kind='bar', title="next_waypoint",ax=axes[0,2])
-    #pd.value_counts(f.oncoming.ravel()).plot(kind='bar', title="oncoming",ax=axes[1,0])
-    #pd.value_counts(f.right.ravel()).plot(kind='bar', title="right",ax=axes[1,2])
+    try:
+        pd.value_counts(f.oncoming.ravel()).plot(kind='bar', title="oncoming",ax=axes[1,0])
+    except:
+        pass
+    try:
+        pd.value_counts(f.right.ravel()).plot(kind='bar', title="right",ax=axes[1,2])
+    except:
+        pass
+    fig.title= "test"
     fig.show()
 
 
