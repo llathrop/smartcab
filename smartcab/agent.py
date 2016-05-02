@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[21]:
+# In[28]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -50,7 +50,8 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
     # NOTE: To quit midway, press Esc or close pygame window, or hit Ctrl+C on the command-line
     print "Successfull runs = {}".format(a.goal)
     print "----------------------------------------------------------"
-    print "featuers:\n",pd.DataFrame(a.features).T.head(5)
+    
+    return pd.DataFrame(a.features).T
     
 print "Environment ready"
 
@@ -140,7 +141,7 @@ run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[25]:
+# In[29]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -184,9 +185,19 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[26]:
+# In[49]:
 
-run(agentType=StateAgent,trials=5)
+stateFeatures=run(agentType=StateAgent,trials=2)
+
+print "features:\n",stateFeatures.head(5)
+
+#stateFeatures.next_waypoint
+print "left:\n",pd.value_counts (stateFeatures.left.ravel())
+print "light:\n",pd.value_counts (stateFeatures.light.ravel())
+print "next_waypoint:\n",pd.value_counts (stateFeatures.next_waypoint .ravel())
+print "oncoming:\n",pd.value_counts (stateFeatures.oncoming.ravel())
+print "right:\n", pd.value_counts (stateFeatures.right.ravel())
+
 
 
 # ## Implement Q-Learning
