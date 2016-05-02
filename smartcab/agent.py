@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[28]:
+# In[83]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -50,8 +50,11 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
     # NOTE: To quit midway, press Esc or close pygame window, or hit Ctrl+C on the command-line
     print "Successfull runs = {}".format(a.goal)
     print "----------------------------------------------------------"
-    
-    return pd.DataFrame(a.features).T
+    features= []
+    for i in range(len(a.features)):
+        features.append(pd.DataFrame(a.features[i]).T)
+        
+    return features
     
 print "Environment ready"
 
@@ -70,7 +73,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[22]:
+# In[84]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -82,28 +85,30 @@ class RandomAgent(Agent):
         # TODO: Initialize any additional variables here
         self.availableAction = [None, 'forward', 'left', 'right']   
         self.goal=0
-        self.runs=0
-        self.features={}
-
+        self.steps=0
+        self.features=[]
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
         # TODO: Prepare for a new trip; reset any variables here, if required
         #print"RESET, Final state:\n", self.state
+        self.features.append({})
+        self.steps=0
         try:
             if self.state[0]>0:
-                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.state[0],self.goal,self.runs)
+                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.state[0],self.goal,len(self.features))
                 self.goal+=1
             else:
-                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.state[0],self.goal,self.runs)
+                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.state[0],self.goal,len(self.features))
                 pass
         except:
-            print "Trial 0 - Goal reached {} times out of {}!".format(self.goal,self.runs)
+            print "Trial 0 - Goal reached {} times out of {}!".format(self.goal,len(self.features))
             pass
         print "----------------------------------------------------------"
 
     def update(self, t):
         # Gather inputs
+        self.steps+=1
         self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
         inputs = self.env.sense(self)
         deadline = self.env.get_deadline(self)
@@ -120,12 +125,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[23]:
+# In[85]:
 
 run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[24]:
+# In[86]:
 
 run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -141,7 +146,7 @@ run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[29]:
+# In[87]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -154,25 +159,24 @@ class StateAgent(RandomAgent):
         self.availableAction = [None, 'forward', 'left', 'right']   
         self.next_waypoint   = None
         self.goal=0
-        self.runs=0
-        self.features={}
+        self.steps=0
+        self.features=[]
         
-    
     def update(self, t):
         # Gather inputs
+        self.steps+=1
+        
         self.lastWaypoint = self.next_waypoint
         self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
         inputs = self.env.sense(self)
         
         deadline = self.env.get_deadline(self)
         
-        self.runs+=1
-
         # TODO: Update state
         inputs['deadline']=deadline
         inputs['next_waypoint']=self.next_waypoint
         self.state= inputs    
-        self.features[self.runs]=self.state
+        self.features[len(self.features)-1][self.steps]=self.state
         # TODO: Select action according to your policy
 
         action = self.availableAction[random.randint(0,3)]    
@@ -185,19 +189,25 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[49]:
+# In[93]:
 
-stateFeatures=run(agentType=StateAgent,trials=2)
-
-print "features:\n",stateFeatures.head(5)
+stateFeatures=run(agentType=StateAgent,trials=5)
 
 #stateFeatures.next_waypoint
-print "left:\n",pd.value_counts (stateFeatures.left.ravel())
-print "light:\n",pd.value_counts (stateFeatures.light.ravel())
-print "next_waypoint:\n",pd.value_counts (stateFeatures.next_waypoint .ravel())
-print "oncoming:\n",pd.value_counts (stateFeatures.oncoming.ravel())
-print "right:\n", pd.value_counts (stateFeatures.right.ravel())
 
+import matplotlib.pyplot as plt
+
+for f in stateFeatures:
+    print "features:{}\n".format(len(f))
+    print f.head(5)
+    fig, axes = plt.subplots(nrows=2, ncols=3,figsize=(14,6))
+
+    #pd.value_counts(f.left.ravel()).plot(kind='bar', title="Left",ax=axes[0,0])
+    pd.value_counts(f.light.ravel()).plot(kind='bar', title="Light",ax=axes[0,1])
+    pd.value_counts(f.next_waypoint.ravel()).plot(kind='bar', title="next_waypoint",ax=axes[0,2])
+    #pd.value_counts(f.oncoming.ravel()).plot(kind='bar', title="oncoming",ax=axes[1,0])
+    #pd.value_counts(f.right.ravel()).plot(kind='bar', title="right",ax=axes[1,2])
+    fig.show()
 
 
 # ## Implement Q-Learning
