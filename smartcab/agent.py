@@ -193,23 +193,21 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[167]:
+# In[185]:
 
 # run the trials for the state
-stateFeatures=run(agentType=StateAgent,trials=5)
+stateFeatures=run(agentType=StateAgent,trials=25)
 
 
-# In[180]:
+# In[186]:
 
 # display the feedback from the prior run
 import matplotlib.pyplot as plt
 
 all_deadlines=[]
 for f in stateFeatures:
-    print "features:{}".format(len(f))
-    #print f.head(5)
     fig, axes = plt.subplots(nrows=2, ncols=3,figsize=(14,6))
-
+    fig.suptitle( "States:{}".format(len(f)))
     try:
         pd.value_counts(f.left.ravel()).plot(kind='bar', title="Left",ax=axes[0,0])
     except:
@@ -230,11 +228,10 @@ for f in stateFeatures:
 
     all_deadlines.append(f.deadline.ravel().min())
 
-    fig.title= "features:{}".format(len(f))
     fig.show()
 
 
-# In[181]:
+# In[187]:
 
 plt.plot (all_deadlines)
 plt.ylabel('Deadline')
