@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[2]:
+# In[156]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -73,7 +73,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[3]:
+# In[157]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -128,12 +128,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[4]:
+# In[158]:
 
 out=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[5]:
+# In[159]:
 
 out=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -149,7 +149,7 @@ out=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[6]:
+# In[160]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -193,16 +193,20 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[18]:
+# In[167]:
 
+# run the trials for the state
 stateFeatures=run(agentType=StateAgent,trials=5)
 
-#stateFeatures.next_waypoint
 
+# In[180]:
+
+# display the feedback from the prior run
 import matplotlib.pyplot as plt
 
+all_deadlines=[]
 for f in stateFeatures:
-    print "features:{}\n".format(len(f))
+    print "features:{}".format(len(f))
     #print f.head(5)
     fig, axes = plt.subplots(nrows=2, ncols=3,figsize=(14,6))
 
@@ -224,10 +228,19 @@ for f in stateFeatures:
     except:
         pass
 
-    print f.deadline.ravel().min()
+    all_deadlines.append(f.deadline.ravel().min())
 
-    fig.title= "test"
+    fig.title= "features:{}".format(len(f))
     fig.show()
+
+
+# In[181]:
+
+plt.plot (all_deadlines)
+plt.ylabel('Deadline')
+plt.xlabel('Run')
+plt.title("Deadline per Run")
+plt.show()
 
 
 # ## Implement Q-Learning
