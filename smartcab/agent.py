@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[83]:
+# In[2]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -73,7 +73,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[147]:
+# In[3]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -128,12 +128,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[152]:
+# In[4]:
 
 out=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[153]:
+# In[5]:
 
 out=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -149,7 +149,7 @@ out=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[154]:
+# In[6]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -193,7 +193,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[155]:
+# In[18]:
 
 stateFeatures=run(agentType=StateAgent,trials=5)
 
@@ -223,6 +223,9 @@ for f in stateFeatures:
         pd.value_counts(f.right.ravel()).plot(kind='bar', title="right",ax=axes[1,2])
     except:
         pass
+
+    print f.deadline.ravel().min()
+
     fig.title= "test"
     fig.show()
 
@@ -247,7 +250,7 @@ for f in stateFeatures:
 # 
 #  PREVIOUS
 
-# In[81]:
+# In[7]:
 
 if __name__ == '__main__':
     print  "running...."
