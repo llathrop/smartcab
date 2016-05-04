@@ -73,7 +73,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[157]:
+# In[190]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -128,17 +128,17 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[158]:
+# In[191]:
 
 out=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[159]:
+# In[192]:
 
 out=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
 
-# ### Random Agent Answer:
+# ### Random Agent - Discussion:
 # 
 # When we run an agent with a random action policy, we see that it will move about the board with no pattern, and will eventually reach the destination. If we allow the use of deadlines, we see that the agent rarely reaches the destination in time, although it may still occur.
 
@@ -149,7 +149,7 @@ out=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[160]:
+# In[193]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -176,10 +176,11 @@ class StateAgent(RandomAgent):
         deadline = self.env.get_deadline(self)
         
         # TODO: Update state
-        inputs['deadline']=deadline
+        
         inputs['next_waypoint']=self.next_waypoint
         self.state= inputs    
-        self.features[len(self.features)-1][self.steps]=self.state
+        inputs['deadline']=deadline
+        self.features[len(self.features)-1][self.steps]=inputs
         # TODO: Select action according to your policy
 
         action = self.availableAction[random.randint(0,3)]    
@@ -239,6 +240,17 @@ plt.xlabel('Run')
 plt.title("Deadline per Run")
 plt.show()
 
+
+# ### Identify and update state - discussion.
+# When we sense our environment, we perceive 4 variables, with several possible states These include: left, light, next_waypoint, oncoming, and right. We can see right away that light and next_waypoint contains new information at every poll, while the others usually have no value. 
+# 
+# It's not readily apparent that the direction of travel information of the other cars (described by left/right/oncoming) is relevant to our agent. A case could be made to remove the direction information, and only retain information about another car being present at the light. This would have the benefit of reducing the number of possible states, increasing the speed of the agent. This may be a valuable approach in resource constrained environments. 
+# 
+# The downside is that the agent may pick an action that causes a longer trip. Early in the learning phase, it could also pick an action incorrectly. For instance, by proceeding through a light when the opposite car is turning left. In this case, it may have previously seen a positive reward for moving through the light, because the opposite car was not turning. This time through, it will recieve a negative reward, and in the future when a car is at the oncoming light, it will always wait till the intersection is clear.
+# 
+# In the interest of correctness, we will choose to use the state as returned from the sensor, with the addition of the next_waypoint.
+# 
+# While I have tracked the deadline, it is not apparent that it will provide useful information to the agent. It is useful to see note that the agent does not see any usefull increase in the deadline value yet. We may expect this to adapt as we implement learning.
 
 # ## Implement Q-Learning
 # 
