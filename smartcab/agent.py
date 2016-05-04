@@ -267,7 +267,7 @@ plt.show()
 # 
 # 
 
-# In[385]:
+# In[397]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -282,12 +282,12 @@ class BasicLearningAgent(RandomAgent):
         self.goal=0
         self.steps=0
         self.features=[]
+        self.Qtable={}
         
     def update(self, t):
         # Gather inputs
         self.steps+=1
         
-        self.lastWaypoint = self.next_waypoint
         self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
         inputs = self.env.sense(self)
         
@@ -302,17 +302,21 @@ class BasicLearningAgent(RandomAgent):
         # TODO: Select action according to your policy
 
         action = self.availableAction[random.randint(0,3)]    
-    
+                
         # Execute action and get reward
         reward = self.env.act(self, action)
         # TODO: Learn policy based on state, action, reward
+        inputs = self.env.sense(self)
+        inputs['next_waypoint']=self.planner.next_waypoint()
+        
+        self.Qtable[(tuple(self.state),action,tuple(inputs))]=reward
 
         #print "LearningAgent.update(): self.state{}, action = {}, reward = {}, next_waypoint = {}".format(
         #                                        self.state, action, reward,self.next_waypoint, )  # [debug]
 print "BasicLearningAgent Ready"
 
 
-# In[387]:
+# In[398]:
 
 # run the trials for the state
 basicLearnFeatures=run(agentType=BasicLearningAgent,trials=5)
