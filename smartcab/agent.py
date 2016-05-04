@@ -73,7 +73,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[190]:
+# In[210]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -92,19 +92,21 @@ class RandomAgent(Agent):
         self.planner.route_to(destination)
         # TODO: Prepare for a new trip; reset any variables here, if required
         #print"RESET, Final state:\n", self.state
-        self.features.append({})
-        self.steps=0
+
+        print len(self.features), self.steps
         try:
-            if self.state['deadline']>0:
-                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.state['deadline'],self.goal,len(self.features))
-                self.goal+=1
+            if self.features[len(self.features)-1][self.steps] >0: #deadline less than zero
+                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.features[len(self.features)-1][self.steps],self.goal,len(self.features))
+                self.goal+=1 #FIXME - order
             else:
-                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.state['deadline'],self.goal,len(self.features))
+                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.features[len(self.features)-1][self.steps],self.goal,len(self.features))
                 pass
         except:
             print "Trial 0 - Goal reached {} times out of {}!".format(self.goal,len(self.features))
             pass
         print "----------------------------------------------------------"
+        self.features.append({})
+        self.steps=0
 
     def update(self, t):
         # Gather inputs
@@ -128,12 +130,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[191]:
+# In[211]:
 
 out=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[192]:
+# In[212]:
 
 out=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -149,7 +151,7 @@ out=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[193]:
+# In[213]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -194,13 +196,13 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[185]:
+# In[214]:
 
 # run the trials for the state
 stateFeatures=run(agentType=StateAgent,trials=25)
 
 
-# In[186]:
+# In[215]:
 
 # display the feedback from the prior run
 import matplotlib.pyplot as plt
@@ -232,7 +234,7 @@ for f in stateFeatures:
     fig.show()
 
 
-# In[187]:
+# In[216]:
 
 plt.plot (all_deadlines)
 plt.ylabel('Deadline')
