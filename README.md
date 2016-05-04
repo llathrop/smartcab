@@ -14,11 +14,12 @@ A Jupyter notebook has been added to the project and may be stepped through as a
 
 ### Run
 
+step throught the 'agent.ipynb' file to see the code inline with the project report.
+
+Alternativly, to see the game gui:
 In a terminal or command window, navigate to the top-level project directory `smartcab/` (that contains this README) and run one of the following commands:
 
 ```python smartcab/agent.py```
 ```python -m smartcab.agent```
 
 This will run the `agent.py` file and execute your agent code.
-
-Alternativly step throught the agent.ipynb file to see the code inline with the project report.
