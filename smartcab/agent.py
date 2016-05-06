@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[341]:
+# In[428]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -51,10 +51,12 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
     print "Successfull runs = {}".format(a.goal)
     print "----------------------------------------------------------"
     features= []
+    deadlines = []
     for i in range(len(a.features)):
         features.append(pd.DataFrame(a.features[i]).T)
+        deadlines.append(a.deadline[i])
         
-    return features
+    return features,deadlines
     
 print "Environment ready"
 
@@ -73,7 +75,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[366]:
+# In[445]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -87,23 +89,25 @@ class RandomAgent(Agent):
         self.goal=0
         self.steps=0
         self.features=[]
+        self.deadline=[]
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
         # TODO: Prepare for a new trip; reset any variables here, if required
         #print"RESET, Final state:\n", self.state
         try:
-            if self.features[len(self.features)-1][self.steps]['deadline'] >0: #deadline less than zero
+            if self.deadline >0: #deadline less than zero
                 self.goal+=1 #FIXME - order
-                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.features[len(self.features)-1][self.steps]['deadline'],self.goal,len(self.features))
+                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.deadline[len(self.features)-1],self.goal,len(self.features))
             else:
-                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.features[len(self.features)-1][self.steps]['deadline'],self.goal,len(self.features))
+                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.deadline[len(self.features)-1],self.goal,len(self.features))
                 pass
         except:
             print "Trial 0 - Goal reached {} times out of {}!".format(self.goal,len(self.features))
             pass
         print "----------------------------------------------------------"
         self.features.append({})
+        self.deadline.append(None)
         self.steps=0
 
     def update(self, t):
@@ -111,11 +115,11 @@ class RandomAgent(Agent):
         self.steps+=1
         self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
         inputs = self.env.sense(self)
-        deadline = self.env.get_deadline(self)
-        inputs['deadline']=deadline
+        #self.deadline[len(self.features)] = self.env.get_deadline(self)
         self.state=inputs
-        inputs['deadline']=deadline
         self.features[len(self.features)-1][self.steps]=inputs
+        self.deadline[len(self.deadline)-1] = self.env.get_deadline(self)
+
         # TODO: Select action according to your policy
         action = self.availableAction[random.randint(0,3)]    
         
@@ -129,14 +133,14 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[367]:
+# In[456]:
 
-out=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
+features,deadlines=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[368]:
+# In[448]:
 
-out=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
+features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
 
 # ### Random Agent - Discussion:
@@ -152,7 +156,7 @@ out=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[369]:
+# In[451]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -182,7 +186,7 @@ class StateAgent(RandomAgent):
         
         inputs['next_waypoint']=self.next_waypoint
         self.state= inputs    
-        inputs['deadline']=deadline
+        self.deadline[len(self.deadline)-1] = self.env.get_deadline(self)
         self.features[len(self.features)-1][self.steps]=inputs
         # TODO: Select action according to your policy
 
@@ -197,13 +201,13 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[380]:
+# In[455]:
 
 # run the trials for the state
-stateFeatures=run(agentType=StateAgent,trials=25)
+stateFeatures,deadlines=run(agentType=StateAgent,trials=25)
 
 
-# In[383]:
+# In[453]:
 
 # display the feedback from the prior run
 import matplotlib.pyplot as plt
@@ -230,14 +234,14 @@ for f in stateFeatures:
     except:
         pass
 
-    all_deadlines.append(f.deadline.ravel().min())
+    #all_deadlines.append(f.deadline.ravel().min())
 
     fig.show()
 
 
-# In[384]:
+# In[454]:
 
-plt.plot (all_deadlines)
+plt.plot (deadlines)
 plt.ylabel('Deadline')
 plt.xlabel('Run')
 plt.title("Deadline per Run")
