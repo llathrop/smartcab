@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[428]:
+# In[468]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -23,10 +23,11 @@ import random
 
 import numpy as np
 import pandas as pd
-from IPython.display import display # Allows the use of display() for DataFrames
 
+import matplotlib.pyplot as plt
+from IPython.display import display # Allows the use of display() for DataFrames
 # Show matplotlib plots inline (nicely formatted in the notebook)
-get_ipython().magic(u'matplotlib inline')
+#get_ipython().magic(u'matplotlib inline')
 
 sys.path.append("./smartcab/")
 from environment import Agent, Environment
@@ -75,7 +76,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[445]:
+# In[469]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -133,12 +134,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[456]:
+# In[470]:
 
 features,deadlines=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[448]:
+# In[471]:
 
 features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -156,7 +157,7 @@ features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example o
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[451]:
+# In[472]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -201,16 +202,15 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[455]:
+# In[473]:
 
 # run the trials for the state
 stateFeatures,deadlines=run(agentType=StateAgent,trials=25)
 
 
-# In[453]:
+# In[474]:
 
 # display the feedback from the prior run
-import matplotlib.pyplot as plt
 
 all_deadlines=[]
 for f in stateFeatures:
@@ -239,7 +239,7 @@ for f in stateFeatures:
     fig.show()
 
 
-# In[454]:
+# In[475]:
 
 plt.plot (deadlines)
 plt.ylabel('Deadline')
@@ -271,7 +271,7 @@ plt.show()
 # 
 # 
 
-# In[397]:
+# In[476]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -301,7 +301,7 @@ class BasicLearningAgent(RandomAgent):
         
         inputs['next_waypoint']=self.next_waypoint
         self.state= inputs    
-        inputs['deadline']=deadline
+        self.deadline[len(self.deadline)-1] = self.env.get_deadline(self)
         self.features[len(self.features)-1][self.steps]=inputs
         # TODO: Select action according to your policy
 
@@ -320,10 +320,19 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[398]:
+# In[477]:
 
 # run the trials for the state
-basicLearnFeatures=run(agentType=BasicLearningAgent,trials=5)
+basicLearnFeatures,BLdeadlines=run(agentType=BasicLearningAgent,trials=5)
+
+
+# In[478]:
+
+plt.plot (BLdeadlines)
+plt.ylabel('Deadline')
+plt.xlabel('Run')
+plt.title("Deadline per Run")
+plt.show()
 
 
 # ### Implement Q-Learning - Discussion
