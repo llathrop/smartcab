@@ -82,7 +82,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[2]:
+# In[12]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -103,7 +103,7 @@ class RandomAgent(Agent):
         # TODO: Prepare for a new trip; reset any variables here, if required
         #print"RESET, Final state:\n", self.state
         try:
-            if self.deadline >0: #deadline less than zero
+            if self.deadline[len(self.features)-1] >0: #deadline less than zero
                 self.goal+=1 #FIXME - order
                 print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.deadline[len(self.features)-1],self.goal,len(self.features))
             else:
@@ -140,12 +140,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[3]:
+# In[13]:
 
 features,deadlines=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[4]:
+# In[14]:
 
 features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -163,7 +163,7 @@ features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example o
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[5]:
+# In[15]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -208,13 +208,13 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[6]:
+# In[16]:
 
 # run the trials for the state
 stateFeatures,deadlines=run(agentType=StateAgent,trials=25)
 
 
-# In[7]:
+# In[17]:
 
 # display the feedback from the prior run
 
@@ -245,7 +245,7 @@ for f in stateFeatures:
     fig.show()
 
 
-# In[8]:
+# In[18]:
 
 plt.plot (deadlines)
 plt.ylabel('Deadline')
@@ -277,7 +277,7 @@ plt.show()
 # 
 # 
 
-# In[9]:
+# In[19]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -338,13 +338,13 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[10]:
+# In[20]:
 
 # run the trials for the state
 basicLearnFeatures,BLdeadlines=run(agentType=BasicLearningAgent,trials=1000)
 
 
-# In[11]:
+# In[21]:
 
 plt.plot (BLdeadlines)
 plt.ylabel('Deadline')
