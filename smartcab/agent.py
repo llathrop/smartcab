@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[468]:
+# In[1]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -27,7 +27,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from IPython.display import display # Allows the use of display() for DataFrames
 # Show matplotlib plots inline (nicely formatted in the notebook)
-#get_ipython().magic(u'matplotlib inline')
+get_ipython().magic(u'matplotlib inline')
 
 sys.path.append("./smartcab/")
 from environment import Agent, Environment
@@ -56,6 +56,12 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
     for i in range(len(a.features)):
         features.append(pd.DataFrame(a.features[i]).T)
         deadlines.append(a.deadline[i])
+    try:
+        print "Qtable:"
+        for r in a.Qtable:
+            print r, a.Qtable[r]
+    except:
+        pass
         
     return features,deadlines
     
@@ -76,7 +82,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[469]:
+# In[2]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -134,12 +140,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[470]:
+# In[3]:
 
 features,deadlines=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[471]:
+# In[4]:
 
 features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -157,7 +163,7 @@ features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example o
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[472]:
+# In[5]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -202,13 +208,13 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[473]:
+# In[6]:
 
 # run the trials for the state
 stateFeatures,deadlines=run(agentType=StateAgent,trials=25)
 
 
-# In[474]:
+# In[7]:
 
 # display the feedback from the prior run
 
@@ -239,7 +245,7 @@ for f in stateFeatures:
     fig.show()
 
 
-# In[475]:
+# In[8]:
 
 plt.plot (deadlines)
 plt.ylabel('Deadline')
@@ -271,7 +277,7 @@ plt.show()
 # 
 # 
 
-# In[549]:
+# In[9]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -332,13 +338,13 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[550]:
+# In[10]:
 
 # run the trials for the state
-basicLearnFeatures,BLdeadlines=run(agentType=BasicLearningAgent,trials=100)
+basicLearnFeatures,BLdeadlines=run(agentType=BasicLearningAgent,trials=1000)
 
 
-# In[551]:
+# In[11]:
 
 plt.plot (BLdeadlines)
 plt.ylabel('Deadline')
@@ -371,7 +377,7 @@ plt.show()
 
 # ---------------------------------------------------------------
 
-# In[7]:
+# In[ ]:
 
 if __name__ == '__main__':
     print  "running...."
