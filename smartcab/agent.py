@@ -271,7 +271,7 @@ plt.show()
 # 
 # 
 
-# In[476]:
+# In[549]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -287,6 +287,10 @@ class BasicLearningAgent(RandomAgent):
         self.steps=0
         self.features=[]
         self.Qtable={}
+        self.epsilon=0.1
+        self.gamma=0
+        self.last_state = None
+        self.last_action = None
         
     def update(self, t):
         # Gather inputs
@@ -300,33 +304,41 @@ class BasicLearningAgent(RandomAgent):
         # TODO: Update state
         
         inputs['next_waypoint']=self.next_waypoint
-        self.state= inputs    
+        self.state = (inputs['light'], inputs['oncoming'], inputs['right'], inputs['left'],inputs['next_waypoint'])
         self.deadline[len(self.deadline)-1] = self.env.get_deadline(self)
         self.features[len(self.features)-1][self.steps]=inputs
         # TODO: Select action according to your policy
 
-        action = self.availableAction[random.randint(0,3)]    
-                
+        action = self.availableAction[random.randint(0,3)]    #take a random action
+        
+        # 1-epsilon % of time, refer to the q-table for an action. take the max value from the available actions
+        if self.epsilon < random.random() and  self.Qtable.has_key(self.state): 
+            action=self.availableAction[self.Qtable[self.state].index(max(self.Qtable[self.state]))]
+                                                    
         # Execute action and get reward
         reward = self.env.act(self, action)
         # TODO: Learn policy based on state, action, reward
-        inputs = self.env.sense(self)
-        inputs['next_waypoint']=self.planner.next_waypoint()
+        if self.Qtable.has_key(self.state):
+            self.Qtable[self.state][self.availableAction.index(action)]=reward
+        else:
+            self.Qtable[self.state]=[0,0,0,0]
+            self.Qtable[self.state][self.availableAction.index(action)]=reward
         
-        self.Qtable[(tuple(self.state),action,tuple(inputs))]=reward
+        self.last_state = self.state
+        self.last_action = action
 
         #print "LearningAgent.update(): self.state{}, action = {}, reward = {}, next_waypoint = {}".format(
         #                                        self.state, action, reward,self.next_waypoint, )  # [debug]
 print "BasicLearningAgent Ready"
 
 
-# In[477]:
+# In[550]:
 
 # run the trials for the state
-basicLearnFeatures,BLdeadlines=run(agentType=BasicLearningAgent,trials=5)
+basicLearnFeatures,BLdeadlines=run(agentType=BasicLearningAgent,trials=100)
 
 
-# In[478]:
+# In[551]:
 
 plt.plot (BLdeadlines)
 plt.ylabel('Deadline')
@@ -363,7 +375,7 @@ plt.show()
 
 if __name__ == '__main__':
     print  "running...."
-    run(agentType=RandomAgent,trials=2, gui=True, delay=.3)
+    run(agentType=BasicLearningAgent,trials=2, gui=True, delay=.3)
 
 
 # #EOF
