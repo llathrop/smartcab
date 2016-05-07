@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[1]:
+# In[39]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -82,7 +82,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[12]:
+# In[40]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -140,12 +140,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[13]:
+# In[41]:
 
 features,deadlines=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[14]:
+# In[42]:
 
 features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -163,7 +163,7 @@ features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example o
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[15]:
+# In[43]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -208,13 +208,13 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[16]:
+# In[44]:
 
 # run the trials for the state
 stateFeatures,deadlines=run(agentType=StateAgent,trials=25)
 
 
-# In[17]:
+# In[45]:
 
 # display the feedback from the prior run
 
@@ -245,7 +245,7 @@ for f in stateFeatures:
     fig.show()
 
 
-# In[18]:
+# In[46]:
 
 plt.plot (deadlines)
 plt.ylabel('Deadline')
@@ -277,7 +277,7 @@ plt.show()
 # 
 # 
 
-# In[19]:
+# In[47]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -338,13 +338,13 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[20]:
+# In[48]:
 
 # run the trials for the state
-basicLearnFeatures,BLdeadlines=run(agentType=BasicLearningAgent,trials=1000)
+basicLearnFeatures,BLdeadlines=run(agentType=BasicLearningAgent,trials=25)
 
 
-# In[21]:
+# In[49]:
 
 plt.plot (BLdeadlines)
 plt.ylabel('Deadline')
@@ -381,7 +381,13 @@ plt.show()
 
 if __name__ == '__main__':
     print  "running...."
-    run(agentType=BasicLearningAgent,trials=2, gui=True, delay=.3)
+    basicLearnFeatures,BLdeadlines=run(agentType=BasicLearningAgent,trials=50, gui=True, delay=.5)
+    plt.plot (BLdeadlines)
+    plt.ylabel('Deadline')
+    plt.xlabel('Run')
+    plt.title("Deadline per Run")
+    plt.show()
+    
 
 
 # #EOF
