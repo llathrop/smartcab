@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[1]:
+# In[100]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -87,7 +87,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[2]:
+# In[101]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -102,6 +102,7 @@ class RandomAgent(Agent):
         self.steps=0
         self.features=[]
         self.deadline=[]
+        self.total_reward=[0]
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
@@ -120,6 +121,7 @@ class RandomAgent(Agent):
         print "----------------------------------------------------------"
         self.features.append({})
         self.deadline.append(None)
+        self.total_reward.append(0)
         self.steps=0
 
     def update(self, t):
@@ -139,20 +141,20 @@ class RandomAgent(Agent):
         reward = self.env.act(self, action)
         self.lastReward=reward
         # TODO: Learn policy based on state, action, reward
-        
+        self.total_reward[len(self.total_reward)-1] =self.total_reward[len(self.total_reward)-1]+reward
         #print "LearningAgent.update():deadline{}, inputs{}, action = {}, reward = {}, next_waypoint = {}".format(
         #                                            deadline, inputs, action, reward,self.next_waypoint, )  # [debug]
 print "RandomAgent ready"
 
 
-# In[3]:
+# In[102]:
 
-features,deadlines=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
+features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[4]:
+# In[103]:
 
-features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
+features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
 
 # ### Random Agent - Discussion:
@@ -168,7 +170,7 @@ features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example o
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[5]:
+# In[104]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -183,6 +185,8 @@ class StateAgent(RandomAgent):
         self.goal=0
         self.steps=0
         self.features=[]
+        self.total_reward=[0]
+
         
     def update(self, t):
         # Gather inputs
@@ -208,18 +212,20 @@ class StateAgent(RandomAgent):
         reward = self.env.act(self, action)
         # TODO: Learn policy based on state, action, reward
 
+        self.total_reward[len(self.total_reward)-1] =self.total_reward[len(self.total_reward)-1]+reward
+
         #print "LearningAgent.update(): self.state{}, action = {}, reward = {}, next_waypoint = {}".format(
         #                                        self.state, action, reward,self.next_waypoint, )  # [debug]
 print "StateAgent Ready"
 
 
-# In[6]:
+# In[111]:
 
 # run the trials for the state
-stateFeatures,deadlines=run(agentType=StateAgent,trials=25)
+stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=25)
 
 
-# In[89]:
+# In[112]:
 
 # display the feedback from the prior run
 def statsFromRun(stateFeatures):
@@ -247,13 +253,17 @@ def statsFromRun(stateFeatures):
 statsFromRun(stateFeatures)
 
 
-# In[90]:
+# In[122]:
 
-plt.plot (deadlines)
-plt.ylabel('Deadline')
-plt.xlabel('Run')
-plt.title("Deadline per Run")
-plt.show()
+def scorePerRun(DL,RW):
+    plt.plot(DL,label="Deadlines")
+    plt.plot(RW,label="Rewards")
+    plt.xlabel('Run')
+    plt.legend()
+    plt.title("Deadline and Rewards per Run")
+    plt.show()
+    
+scorePerRun(StateDeadlines,StateRewards)
 
 
 # ### Identify and update state - Discussion.
@@ -279,7 +289,7 @@ plt.show()
 # 
 # 
 
-# In[91]:
+# In[107]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -361,25 +371,20 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[92]:
+# In[108]:
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
 
 
-# In[93]:
+# In[109]:
 
 statsFromRun(basicLearnFeatures)
 
 
-# In[94]:
+# In[121]:
 
-plt.plot(BLdeadlines,label="Deadlines")
-plt.plot(BLrewards,label="Rewards")
-plt.xlabel('Run')
-plt.legend()
-plt.title("Deadline and Rewards per Run")
-plt.show()
+scorePerRun(BLdeadlines,BLrewards)
 
 
 # ### Implement Q-Learning - Discussion
