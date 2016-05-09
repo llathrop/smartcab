@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[59]:
+# In[1]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -87,7 +87,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[60]:
+# In[2]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -145,12 +145,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[61]:
+# In[3]:
 
 features,deadlines=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[62]:
+# In[4]:
 
 features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -168,7 +168,7 @@ features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example o
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[63]:
+# In[5]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -213,13 +213,13 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[64]:
+# In[6]:
 
 # run the trials for the state
 stateFeatures,deadlines=run(agentType=StateAgent,trials=25)
 
 
-# In[ ]:
+# In[7]:
 
 # display the feedback from the prior run
 
@@ -247,7 +247,7 @@ for f in stateFeatures:
     fig.show()
 
 
-# In[ ]:
+# In[8]:
 
 plt.plot (deadlines)
 plt.ylabel('Deadline')
@@ -279,7 +279,7 @@ plt.show()
 # 
 # 
 
-# In[ ]:
+# In[9]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -361,27 +361,19 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[ ]:
+# In[10]:
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
 
 
-# In[ ]:
+# In[21]:
 
-plt.plot (BLdeadlines)
-plt.ylabel('Deadline')
+plt.plot(BLdeadlines,label="Deadlines")
+plt.plot(BLrewards,label="Rewards")
 plt.xlabel('Run')
-plt.title("Deadline per Run")
-plt.show()
-
-
-# In[ ]:
-
-plt.plot (BLrewards)
-plt.ylabel('rewards')
-plt.xlabel('Run')
-plt.title("Rewards per Run")
+plt.legend()
+plt.title("Deadline and Rewards per Run")
 plt.show()
 
 
