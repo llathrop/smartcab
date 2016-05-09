@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[39]:
+# In[59]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -62,8 +62,13 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
             print r, a.Qtable[r]
     except:
         pass
-        
-    return features,deadlines
+    try:
+        rewards=[]
+        for i in range(len(a.total_reward)):
+            rewards.append(a.total_reward[i])
+        return features,deadlines,rewards
+    except: 
+        return features,deadlines
     
 print "Environment ready"
 
@@ -82,7 +87,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[40]:
+# In[60]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -140,12 +145,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[41]:
+# In[61]:
 
 features,deadlines=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[42]:
+# In[62]:
 
 features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -163,7 +168,7 @@ features,deadlines=run(agentType=RandomAgent,trials=2, deadline=True) #Example o
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[43]:
+# In[63]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -208,17 +213,16 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[44]:
+# In[64]:
 
 # run the trials for the state
 stateFeatures,deadlines=run(agentType=StateAgent,trials=25)
 
 
-# In[45]:
+# In[ ]:
 
 # display the feedback from the prior run
 
-all_deadlines=[]
 for f in stateFeatures:
     fig, axes = plt.subplots(nrows=2, ncols=3,figsize=(14,6))
     fig.suptitle( "States:{}".format(len(f)))
@@ -239,13 +243,11 @@ for f in stateFeatures:
         pd.value_counts(f.right.ravel()).plot(kind='bar', title="right",ax=axes[1,2])
     except:
         pass
-
-    #all_deadlines.append(f.deadline.ravel().min())
-
+    
     fig.show()
 
 
-# In[46]:
+# In[ ]:
 
 plt.plot (deadlines)
 plt.ylabel('Deadline')
@@ -277,7 +279,7 @@ plt.show()
 # 
 # 
 
-# In[47]:
+# In[ ]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -297,6 +299,27 @@ class BasicLearningAgent(RandomAgent):
         self.gamma=0
         self.last_state = None
         self.last_action = None
+        self.total_reward=[0]
+
+    def reset(self, destination=None):
+        self.planner.route_to(destination)
+        # TODO: Prepare for a new trip; reset any variables here, if required
+        #print"RESET, Final state:\n", self.state
+        try:
+            if self.deadline[len(self.features)-1] >0: #deadline less than zero
+                self.goal+=1 #FIXME - order
+                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.deadline[len(self.features)-1],self.goal,len(self.features))
+            else:
+                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.deadline[len(self.features)-1],self.goal,len(self.features))
+                pass
+        except:
+            print "Trial 0 - Goal reached {} times out of {}!".format(self.goal,len(self.features))
+            pass
+        print "----------------------------------------------------------"
+        self.features.append({})
+        self.deadline.append(None)
+        self.total_reward.append(0)
+        self.steps=0
         
     def update(self, t):
         # Gather inputs
@@ -306,7 +329,6 @@ class BasicLearningAgent(RandomAgent):
         inputs = self.env.sense(self)
         
         deadline = self.env.get_deadline(self)
-        
         # TODO: Update state
         
         inputs['next_waypoint']=self.next_waypoint
@@ -332,19 +354,20 @@ class BasicLearningAgent(RandomAgent):
         
         self.last_state = self.state
         self.last_action = action
+        self.total_reward[len(self.total_reward)-1] =self.total_reward[len(self.total_reward)-1]+reward
 
         #print "LearningAgent.update(): self.state{}, action = {}, reward = {}, next_waypoint = {}".format(
         #                                        self.state, action, reward,self.next_waypoint, )  # [debug]
 print "BasicLearningAgent Ready"
 
 
-# In[48]:
+# In[ ]:
 
-# run the trials for the state
-basicLearnFeatures,BLdeadlines=run(agentType=BasicLearningAgent,trials=25)
+# run the trials for the Basic Q learning agent
+basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
 
 
-# In[49]:
+# In[ ]:
 
 plt.plot (BLdeadlines)
 plt.ylabel('Deadline')
@@ -353,7 +376,17 @@ plt.title("Deadline per Run")
 plt.show()
 
 
+# In[ ]:
+
+plt.plot (BLrewards)
+plt.ylabel('rewards')
+plt.xlabel('Run')
+plt.title("Rewards per Run")
+plt.show()
+
+
 # ### Implement Q-Learning - Discussion
+# With a basic Qlearning algorithm, we note that the agent quickly learns a set of rules that allow the agent to move toward the objective. Generarlly speaking the agent, is moving to the destination, but may not always make optimal choices
 
 # ---------------------------------------------------------------
 
