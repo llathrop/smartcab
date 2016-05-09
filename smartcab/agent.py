@@ -219,10 +219,10 @@ print "StateAgent Ready"
 stateFeatures,deadlines=run(agentType=StateAgent,trials=25)
 
 
-# In[87]:
+# In[89]:
 
 # display the feedback from the prior run
-def statsForRun(stateFeatures):
+def statsFromRun(stateFeatures):
     left=pd.Series()
     light=pd.Series()
     next_waypoint=pd.Series()
@@ -244,10 +244,10 @@ def statsForRun(stateFeatures):
     oncoming.plot(kind='bar', title="oncoming",ax=axes[1,0])
     right.plot(kind='bar', title="right",ax=axes[1,2])
     fig.show()
-statsForRun(stateFeatures)
+statsFromRun(stateFeatures)
 
 
-# In[30]:
+# In[90]:
 
 plt.plot (deadlines)
 plt.ylabel('Deadline')
@@ -279,7 +279,7 @@ plt.show()
 # 
 # 
 
-# In[9]:
+# In[91]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -361,18 +361,18 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[10]:
+# In[92]:
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
 
 
-# In[88]:
+# In[93]:
 
-statsForRun(basicLearnFeatures)
+statsFromRun(basicLearnFeatures)
 
 
-# In[21]:
+# In[94]:
 
 plt.plot(BLdeadlines,label="Deadlines")
 plt.plot(BLrewards,label="Rewards")
@@ -394,8 +394,6 @@ plt.show()
 # Report what changes you made to your basic implementation of Q-Learning to achieve the final version of the agent. How well does it perform?
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
-# 
-#  PREVIOUS
 
 # In[ ]:
 
@@ -412,12 +410,12 @@ plt.show()
 if __name__ == '__main__':
     print  "running...."
     basicLearnFeatures,BLdeadlines=run(agentType=BasicLearningAgent,trials=50, gui=True, delay=.5)
-    plt.plot (BLdeadlines)
-    plt.ylabel('Deadline')
+    plt.plot(BLdeadlines,label="Deadlines")
+    plt.plot(BLrewards,label="Rewards")
     plt.xlabel('Run')
-    plt.title("Deadline per Run")
+    plt.legend()
+    plt.title("Deadline and Rewards per Run")
     plt.show()
-    
 
 
 # #EOF
