@@ -219,35 +219,35 @@ print "StateAgent Ready"
 stateFeatures,deadlines=run(agentType=StateAgent,trials=25)
 
 
-# In[7]:
+# In[87]:
 
 # display the feedback from the prior run
+def statsForRun(stateFeatures):
+    left=pd.Series()
+    light=pd.Series()
+    next_waypoint=pd.Series()
+    oncoming=pd.Series()
+    right=pd.Series()
+    for f in stateFeatures:
+        left= left.add(pd.value_counts(f.left.ravel()), fill_value=0)
+        light= light.add(pd.value_counts(f.light.ravel()), fill_value=0)
+        next_waypoint= next_waypoint.add(pd.value_counts(f.next_waypoint.ravel()), fill_value=0)
+        oncoming= oncoming.add(pd.value_counts(f.oncoming.ravel()), fill_value=0)
+        right= right.add(pd.value_counts(f.right.ravel()), fill_value=0)
 
-for f in stateFeatures:
     fig, axes = plt.subplots(nrows=2, ncols=3,figsize=(14,6))
-    fig.suptitle( "States:{}".format(len(f)))
-    try:
-        pd.value_counts(f.left.ravel()).plot(kind='bar', title="Left",ax=axes[0,0])
-    except:
-        pass
-    try:
-        pd.value_counts(f.light.ravel()).plot(kind='bar', title="Light",ax=axes[0,1])
-    except:
-        pass
-    pd.value_counts(f.next_waypoint.ravel()).plot(kind='bar', title="next_waypoint",ax=axes[0,2])
-    try:
-        pd.value_counts(f.oncoming.ravel()).plot(kind='bar', title="oncoming",ax=axes[1,0])
-    except:
-        pass
-    try:
-        pd.value_counts(f.right.ravel()).plot(kind='bar', title="right",ax=axes[1,2])
-    except:
-        pass
-    
+    fig.suptitle( "Runs:{}".format(len(stateFeatures)))
+
+    left.plot(kind='bar', title="Left",ax=axes[0,0])
+    light.plot(kind='bar', title="light",ax=axes[0,1])
+    next_waypoint.plot(kind='bar', title="next_waypoint",ax=axes[0,2])
+    oncoming.plot(kind='bar', title="oncoming",ax=axes[1,0])
+    right.plot(kind='bar', title="right",ax=axes[1,2])
     fig.show()
+statsForRun(stateFeatures)
 
 
-# In[8]:
+# In[30]:
 
 plt.plot (deadlines)
 plt.ylabel('Deadline')
@@ -365,6 +365,11 @@ print "BasicLearningAgent Ready"
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
+
+
+# In[88]:
+
+statsForRun(basicLearnFeatures)
 
 
 # In[21]:
