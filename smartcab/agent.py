@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[10]:
+# In[2]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -25,10 +25,19 @@ import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
-from IPython.display import display # Allows the use of display() for DataFrames
-# Show matplotlib plots inline (nicely formatted in the notebook)
-get_ipython().magic(u'matplotlib inline')
-
+try:
+    cfg = get_ipython().config 
+    if cfg['IPKernelApp']['parent_appname'] == 'ipython-notebook':
+        print "in notebook"
+        from IPython.display import display # Allows the use of display() for DataFrames
+        get_ipython().magic(u'matplotlib inline')
+    else:
+        print "in notebook"
+        from IPython.display import display # Allows the use of display() for DataFrames
+        get_ipython().magic(u'matplotlib inline')
+except NameError:
+    print "in console"
+    console=True
 sys.path.append("./smartcab/")
 from environment import Agent, Environment
 from planner import RoutePlanner
@@ -37,7 +46,7 @@ from simulator import Simulator
 print "Environment ready"
 
 
-# In[31]:
+# In[3]:
 
 # Several of the provided modules output unuseful information during each run. 
 #  Here we provide a way to supress that output as needed. 
@@ -72,7 +81,7 @@ redirector.reset()
 print "Redirector ready"
 
 
-# In[15]:
+# In[4]:
 
 
 def run(agentType,trials=10, gui=False, deadline=False, delay=0):
@@ -138,7 +147,7 @@ print "run ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[16]:
+# In[5]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -162,9 +171,11 @@ class RandomAgent(Agent):
         try:
             if self.deadline[len(self.features)-1] >0: #deadline less than zero
                 self.goal+=1 #FIXME - order
-                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.deadline[len(self.features)-1],self.goal,len(self.features))
+                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(
+                                                        self.deadline[len(self.features)-1],self.goal,len(self.features))
             else:
-                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.deadline[len(self.features)-1],self.goal,len(self.features))
+                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(
+                                                        self.deadline[len(self.features)-1],self.goal,len(self.features))
                 pass
         except:
             print "Trial 0 - Goal reached {} times out of {}!".format(self.goal,len(self.features))
@@ -198,12 +209,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[17]:
+# In[6]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[18]:
+# In[7]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -221,7 +232,7 @@ features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[19]:
+# In[8]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -270,7 +281,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[23]:
+# In[9]:
 
 # run the trials for the state
 
@@ -280,7 +291,7 @@ stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=25)
 print "Random Agent done"
 
 
-# In[24]:
+# In[12]:
 
 # display the feedback from the prior run
 def statsFromRun(stateFeatures):
@@ -309,7 +320,7 @@ def statsFromRun(stateFeatures):
 statsFromRun(stateFeatures)
 
 
-# In[25]:
+# In[14]:
 
 def scorePerRun(DL,RW):
     plt.plot(DL,label="Deadlines")
@@ -345,13 +356,13 @@ scorePerRun(StateDeadlines,StateRewards)
 # 
 # 
 
-# In[26]:
+# In[15]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
 
     def __init__(self, env):
-        super(BasicLearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None, and a default color
+        super(BasicLearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
@@ -408,7 +419,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[27]:
+# In[16]:
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
@@ -416,12 +427,12 @@ basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials
 print "Basic Q Learning Agent done"
 
 
-# In[28]:
+# In[17]:
 
 statsFromRun(basicLearnFeatures)
 
 
-# In[29]:
+# In[18]:
 
 scorePerRun(BLdeadlines,BLrewards)
 
@@ -453,13 +464,9 @@ scorePerRun(BLdeadlines,BLrewards)
 
 if __name__ == '__main__':
     print  "running...."
-    basicLearnFeatures,BLdeadlines=run(agentType=BasicLearningAgent,trials=50, gui=True, delay=.5)
-    plt.plot(BLdeadlines,label="Deadlines")
-    plt.plot(BLrewards,label="Rewards")
-    plt.xlabel('Run')
-    plt.legend()
-    plt.title("Deadline and Rewards per Run")
-    plt.show()
+    basicLearnFeatures,BLdeadlines,BLrewards==run(agentType=BasicLearningAgent,trials=50, gui=False, delay=.5)
+    statsFromRun(basicLearnFeatures)
+    scorePerRun(BLdeadlines,BLrewards)
 
 
 # #EOF
