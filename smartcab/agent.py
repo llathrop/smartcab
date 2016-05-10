@@ -37,27 +37,27 @@ from simulator import Simulator
 print "Environment ready"
 
 
-# In[14]:
+# In[31]:
 
+# Several of the provided modules output unuseful information during each run. 
+#  Here we provide a way to supress that output as needed. 
 class outputRedirect():
     def __init__(self):
-        import sys
-        import os
-        self.stout_orig=sys.stdout 
+        self.stout_orig=sys.stdout  # save the current state
     
-    def reset(self):
+    def reset(self): #restore to the original state when initiated
         sys.stdout = self.stout_orig
         print "stdout restored!"
         
-    def suppress_output(self):
+    def suppress_output(self): # a well formed name for the default of the redirect_output
         self.redirect_output()
         
-    def redirect_output(self,f= open(os.devnull, 'w')):
+    def redirect_output(self,f= open(os.devnull, 'w')): # redirect to f, if provided, otherwise to null
         try:
             print "redirecting stdout...."
             sys.stdout = f
         except:
-            return "couldn't open passed"
+            return "couldn't open destination..."
             self.reset = f
             
 redirector=outputRedirect()
@@ -72,13 +72,18 @@ redirector.reset()
 print "Redirector ready"
 
 
-# In[12]:
+# In[15]:
 
 
 def run(agentType,trials=10, gui=False, deadline=False, delay=0):
     """Run the agent for a finite number of trials."""
     
     # Set up environment and agent
+    
+    if gui ==False:
+        redirector=outputRedirect()
+        redirector.suppress_output()
+    
     e = Environment()  # create environment (also adds some dummy traffic)
     a = e.create_agent(agentType)  # create agent
     e.set_primary_agent(a, enforce_deadline=deadline)  # specify agent to track
@@ -90,6 +95,10 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
 
     sim.run(n_trials=trials)  # run for a specified number of trials
     # NOTE: To quit midway, press Esc or close pygame window, or hit Ctrl+C on the command-line
+    
+    if gui ==False:
+        redirector.reset()    
+        
     print "Successfull runs = {}".format(a.goal)
     print "----------------------------------------------------------"
     features= []
@@ -129,7 +138,7 @@ print "run ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[ ]:
+# In[16]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -189,12 +198,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[ ]:
+# In[17]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[ ]:
+# In[18]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -212,7 +221,7 @@ features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[ ]:
+# In[19]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -261,23 +270,17 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[ ]:
+# In[23]:
 
 # run the trials for the state
 
-# turn off output to stdout, as the chatter  from the various pieces is too muuch info
-saveout = sys.stdout  
-f = open(os.devnull, 'w')
-sys.stdout = f
 
 stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=25)
-
-sys.stdout = saveout     # output ack on
 
 print "Random Agent done"
 
 
-# In[ ]:
+# In[24]:
 
 # display the feedback from the prior run
 def statsFromRun(stateFeatures):
@@ -306,7 +309,7 @@ def statsFromRun(stateFeatures):
 statsFromRun(stateFeatures)
 
 
-# In[ ]:
+# In[25]:
 
 def scorePerRun(DL,RW):
     plt.plot(DL,label="Deadlines")
@@ -342,7 +345,7 @@ scorePerRun(StateDeadlines,StateRewards)
 # 
 # 
 
-# In[ ]:
+# In[26]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -405,28 +408,20 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[ ]:
+# In[27]:
 
 # run the trials for the Basic Q learning agent
-
-# turn off output to stdout, as the chatter  from the various pieces is too muuch info
-saveout = sys.stdout  
-f = open(os.devnull, 'w')
-sys.stdout = f
-
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
-
-sys.stdout = saveout  # turn output back on
 
 print "Basic Q Learning Agent done"
 
 
-# In[ ]:
+# In[28]:
 
 statsFromRun(basicLearnFeatures)
 
 
-# In[ ]:
+# In[29]:
 
 scorePerRun(BLdeadlines,BLrewards)
 
