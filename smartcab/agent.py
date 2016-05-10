@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[1]:
+# In[36]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -56,20 +56,20 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
     for i in range(len(a.features)):
         features.append(pd.DataFrame(a.features[i]).T)
         deadlines.append(a.deadline[i])
+        
+    rewards=[]
+    for i in range(len(a.total_reward)):
+        rewards.append(a.total_reward[i])
+
+
     try:
         print "Qtable:"
         for r in a.Qtable:
             print r, a.Qtable[r]
     except:
-        pass
-    try:
-        rewards=[]
-        for i in range(len(a.total_reward)):
-            rewards.append(a.total_reward[i])
-        return features,deadlines,rewards
-    except: 
-        return features,deadlines
-    
+        print "no Qtable"
+
+    return features,deadlines,rewards
 print "Environment ready"
 
 
@@ -87,7 +87,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[2]:
+# In[37]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -147,12 +147,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[5]:
+# In[38]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[6]:
+# In[39]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -170,7 +170,7 @@ features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[7]:
+# In[40]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -219,21 +219,23 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[20]:
+# In[41]:
 
 # run the trials for the state
+
+# turn off output to stdout, as the chatter  from the various pieces is too muuch info
 saveout = sys.stdout  
 f = open(os.devnull, 'w')
 sys.stdout = f
 
 stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=25)
 
-sys.stdout = saveout  
+sys.stdout = saveout     # output ack on
 
 print "Random Agent done"
 
 
-# In[21]:
+# In[42]:
 
 # display the feedback from the prior run
 def statsFromRun(stateFeatures):
@@ -262,7 +264,7 @@ def statsFromRun(stateFeatures):
 statsFromRun(stateFeatures)
 
 
-# In[22]:
+# In[43]:
 
 def scorePerRun(DL,RW):
     plt.plot(DL,label="Deadlines")
@@ -298,7 +300,7 @@ scorePerRun(StateDeadlines,StateRewards)
 # 
 # 
 
-# In[23]:
+# In[48]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -320,25 +322,6 @@ class BasicLearningAgent(RandomAgent):
         self.last_action = None
         self.total_reward=[0]
 
-    def reset(self, destination=None):
-        self.planner.route_to(destination)
-        # TODO: Prepare for a new trip; reset any variables here, if required
-        #print"RESET, Final state:\n", self.state
-        try:
-            if self.deadline[len(self.features)-1] >0: #deadline less than zero
-                self.goal+=1 #FIXME - order
-                print "PASS! {} steps to goal,Goal reached {} times out of {}!".format(self.deadline[len(self.features)-1],self.goal,len(self.features))
-            else:
-                print "FAIL! {} steps to goal,Goal reached {} times out of {}!".format(self.deadline[len(self.features)-1],self.goal,len(self.features))
-                pass
-        except:
-            print "Trial 0 - Goal reached {} times out of {}!".format(self.goal,len(self.features))
-            pass
-        print "----------------------------------------------------------"
-        self.features.append({})
-        self.deadline.append(None)
-        self.total_reward.append(0)
-        self.steps=0
         
     def update(self, t):
         # Gather inputs
@@ -380,33 +363,34 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[24]:
+# In[49]:
 
 # run the trials for the Basic Q learning agent
 
+# turn off output to stdout, as the chatter  from the various pieces is too muuch info
 saveout = sys.stdout  
 f = open(os.devnull, 'w')
 sys.stdout = f
 
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
 
-sys.stdout = saveout  
+sys.stdout = saveout  # turn output back on
 
 print "Basic Q Learning Agent done"
 
 
-# In[25]:
+# In[50]:
 
 statsFromRun(basicLearnFeatures)
 
 
-# In[26]:
+# In[51]:
 
 scorePerRun(BLdeadlines,BLrewards)
 
 
 # ### Implement Q-Learning - Discussion
-# With a basic Qlearning algorithm, we note that the agent quickly learns a set of rules that allow the agent to move toward the objective. Generarlly speaking the agent, is moving to the destination, but may not always make optimal choices
+# With a basic Qlearning algorithm, we note that the agent quickly learns a set of rules that allow the agent to move toward the objective. Generarlly speaking the agent, is moving to the destination, but may not always make optimal choices. With this version of Q-Learning, we don't see a large continued increase in the agent speed toward the destination.
 
 # ---------------------------------------------------------------
 
