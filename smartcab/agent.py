@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[36]:
+# In[10]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -34,9 +34,50 @@ from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
 
+print "Environment ready"
+
+
+# In[14]:
+
+class outputRedirect():
+    def __init__(self):
+        import sys
+        import os
+        self.stout_orig=sys.stdout 
+    
+    def reset(self):
+        sys.stdout = self.stout_orig
+        print "stdout restored!"
+        
+    def suppress_output(self):
+        self.redirect_output()
+        
+    def redirect_output(self,f= open(os.devnull, 'w')):
+        try:
+            print "redirecting stdout...."
+            sys.stdout = f
+        except:
+            return "couldn't open passed"
+            self.reset = f
+            
+redirector=outputRedirect()
+
+print "test a"
+redirector.suppress_output()
+print "test b"
+redirector.reset()
+redirector.redirect_output(open(os.devnull, 'w'))
+print "test c"
+redirector.reset()
+print "Redirector ready"
+
+
+# In[12]:
+
+
 def run(agentType,trials=10, gui=False, deadline=False, delay=0):
     """Run the agent for a finite number of trials."""
-
+    
     # Set up environment and agent
     e = Environment()  # create environment (also adds some dummy traffic)
     a = e.create_agent(agentType)  # create agent
@@ -70,7 +111,8 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
         print "no Qtable"
 
     return features,deadlines,rewards
-print "Environment ready"
+
+print "run ready"
 
 
 # ## Implement a basic driving agent
@@ -87,7 +129,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[37]:
+# In[ ]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -147,12 +189,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[38]:
+# In[ ]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[39]:
+# In[ ]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -170,7 +212,7 @@ features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[40]:
+# In[ ]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -219,7 +261,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[41]:
+# In[ ]:
 
 # run the trials for the state
 
@@ -235,7 +277,7 @@ sys.stdout = saveout     # output ack on
 print "Random Agent done"
 
 
-# In[42]:
+# In[ ]:
 
 # display the feedback from the prior run
 def statsFromRun(stateFeatures):
@@ -264,7 +306,7 @@ def statsFromRun(stateFeatures):
 statsFromRun(stateFeatures)
 
 
-# In[43]:
+# In[ ]:
 
 def scorePerRun(DL,RW):
     plt.plot(DL,label="Deadlines")
@@ -300,7 +342,7 @@ scorePerRun(StateDeadlines,StateRewards)
 # 
 # 
 
-# In[48]:
+# In[ ]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -363,7 +405,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[49]:
+# In[ ]:
 
 # run the trials for the Basic Q learning agent
 
@@ -379,12 +421,12 @@ sys.stdout = saveout  # turn output back on
 print "Basic Q Learning Agent done"
 
 
-# In[50]:
+# In[ ]:
 
 statsFromRun(basicLearnFeatures)
 
 
-# In[51]:
+# In[ ]:
 
 scorePerRun(BLdeadlines,BLrewards)
 
