@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[100]:
+# In[1]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -87,7 +87,7 @@ print "Environment ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[101]:
+# In[2]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -147,12 +147,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[102]:
+# In[5]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[103]:
+# In[6]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -170,7 +170,7 @@ features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[104]:
+# In[7]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -219,13 +219,21 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[111]:
+# In[20]:
 
 # run the trials for the state
+saveout = sys.stdout  
+f = open(os.devnull, 'w')
+sys.stdout = f
+
 stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=25)
 
+sys.stdout = saveout  
 
-# In[112]:
+print "Random Agent done"
+
+
+# In[21]:
 
 # display the feedback from the prior run
 def statsFromRun(stateFeatures):
@@ -250,10 +258,11 @@ def statsFromRun(stateFeatures):
     oncoming.plot(kind='bar', title="oncoming",ax=axes[1,0])
     right.plot(kind='bar', title="right",ax=axes[1,2])
     fig.show()
+    
 statsFromRun(stateFeatures)
 
 
-# In[122]:
+# In[22]:
 
 def scorePerRun(DL,RW):
     plt.plot(DL,label="Deadlines")
@@ -267,7 +276,7 @@ scorePerRun(StateDeadlines,StateRewards)
 
 
 # ### Identify and update state - Discussion.
-# When we sense our environment, we perceive 4 variables, with several possible states These include: left, light, next_waypoint, oncoming, and right. We can see right away that light and next_waypoint contains new information at every poll, while the others usually have no value. 
+# When we sense our environment, we perceive 5 variables, with several possible states These include: left, light, next_waypoint, oncoming, and right. We can see right away that light and next_waypoint contains new information at every poll, while the others usually have no value. 
 # 
 # It's not readily apparent that the direction of travel information of the other cars (described by left/right/oncoming) is relevant to our agent. A case could be made to remove the direction information, and only retain information about another car being present at the light. This would have the benefit of reducing the number of possible states, increasing the speed of the agent. This may be a valuable approach in resource constrained environments. 
 # 
@@ -289,7 +298,7 @@ scorePerRun(StateDeadlines,StateRewards)
 # 
 # 
 
-# In[107]:
+# In[23]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -371,18 +380,27 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[108]:
+# In[24]:
 
 # run the trials for the Basic Q learning agent
+
+saveout = sys.stdout  
+f = open(os.devnull, 'w')
+sys.stdout = f
+
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
 
+sys.stdout = saveout  
 
-# In[109]:
+print "Basic Q Learning Agent done"
+
+
+# In[25]:
 
 statsFromRun(basicLearnFeatures)
 
 
-# In[121]:
+# In[26]:
 
 scorePerRun(BLdeadlines,BLrewards)
 
