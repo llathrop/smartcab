@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[2]:
+# In[75]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -35,6 +35,7 @@ try:
         print "in notebook"
         from IPython.display import display # Allows the use of display() for DataFrames
         get_ipython().magic(u'matplotlib inline')
+    console=False
 except NameError:
     print "in console"
     console=True
@@ -46,7 +47,7 @@ from simulator import Simulator
 print "Environment ready"
 
 
-# In[3]:
+# In[76]:
 
 # Several of the provided modules output unuseful information during each run. 
 #  Here we provide a way to supress that output as needed. 
@@ -81,7 +82,7 @@ redirector.reset()
 print "Redirector ready"
 
 
-# In[72]:
+# In[90]:
 
 
 def run(agentType,trials=10, gui=False, deadline=False, delay=0):
@@ -92,6 +93,7 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
     if gui ==False:
         redirector=outputRedirect()
         redirector.suppress_output()
+        delay=0
     
     e = Environment()  # create environment (also adds some dummy traffic)
     a = e.create_agent(agentType)  # create agent
@@ -148,7 +150,7 @@ print "run ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[5]:
+# In[78]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -210,12 +212,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[6]:
+# In[79]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[7]:
+# In[80]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -233,7 +235,7 @@ features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[8]:
+# In[81]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -282,7 +284,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[64]:
+# In[82]:
 
 # run the trials for the state
 
@@ -292,7 +294,7 @@ stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=25)
 print "Random Agent done"
 
 
-# In[51]:
+# In[83]:
 
 # display the feedback from the prior run
 def statsFromRun(stateFeatures):
@@ -322,7 +324,7 @@ def statsFromRun(stateFeatures):
 statsFromRun(stateFeatures)
 
 
-# In[55]:
+# In[84]:
 
 def scorePerRun(DL,RW):
     plt.figure(figsize=(14,6))
@@ -360,7 +362,7 @@ scorePerRun(StateDeadlines,StateRewards)
 # 
 # 
 
-# In[65]:
+# In[85]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -422,7 +424,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[66]:
+# In[86]:
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
@@ -430,12 +432,12 @@ basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials
 print "Basic Q Learning Agent done"
 
 
-# In[58]:
+# In[87]:
 
 statsFromRun(basicLearnFeatures)
 
 
-# In[59]:
+# In[88]:
 
 scorePerRun(BLdeadlines,BLrewards)
 
@@ -463,11 +465,11 @@ scorePerRun(BLdeadlines,BLrewards)
 
 # ---------------------------------------------------------------
 
-# In[73]:
+# In[92]:
 
 if __name__ == '__main__':
     print  "running...."
-    basicLearnFeatures,BLdeadlines,BLrewards==run(agentType=BasicLearningAgent,trials=25, gui=False, delay=.00)
+    basicLearnFeatures,BLdeadlines,BLrewards==run(agentType=BasicLearningAgent,trials=25, gui=console, delay=.1)
     statsFromRun(basicLearnFeatures)
     scorePerRun(BLdeadlines,BLrewards)
 
