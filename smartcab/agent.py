@@ -81,7 +81,7 @@ redirector.reset()
 print "Redirector ready"
 
 
-# In[4]:
+# In[72]:
 
 
 def run(agentType,trials=10, gui=False, deadline=False, delay=0):
@@ -123,8 +123,9 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
 
     try:
         print "Qtable:"
+        print "state=light, oncoming, right, left, next_waypoint  / actions=None, forward, left, right"
         for r in a.Qtable:
-            print r, a.Qtable[r]
+            print "state={}, {}, {}, {}, {} / action={}".format(r[0],r[1],r[2],r[3],r[4], a.Qtable[r])
     except:
         print "no Qtable"
 
@@ -281,7 +282,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[9]:
+# In[64]:
 
 # run the trials for the state
 
@@ -291,7 +292,7 @@ stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=25)
 print "Random Agent done"
 
 
-# In[12]:
+# In[51]:
 
 # display the feedback from the prior run
 def statsFromRun(stateFeatures):
@@ -315,20 +316,23 @@ def statsFromRun(stateFeatures):
     next_waypoint.plot(kind='bar', title="next_waypoint",ax=axes[0,2])
     oncoming.plot(kind='bar', title="oncoming",ax=axes[1,0])
     right.plot(kind='bar', title="right",ax=axes[1,2])
-    fig.show()
+    plt.show()
+    plt.close()
     
 statsFromRun(stateFeatures)
 
 
-# In[14]:
+# In[55]:
 
 def scorePerRun(DL,RW):
+    plt.figure(figsize=(14,6))
     plt.plot(DL,label="Deadlines")
     plt.plot(RW,label="Rewards")
     plt.xlabel('Run')
     plt.legend()
     plt.title("Deadline and Rewards per Run")
     plt.show()
+    plt.close()
     
 scorePerRun(StateDeadlines,StateRewards)
 
@@ -356,7 +360,7 @@ scorePerRun(StateDeadlines,StateRewards)
 # 
 # 
 
-# In[15]:
+# In[65]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -388,7 +392,6 @@ class BasicLearningAgent(RandomAgent):
         
         deadline = self.env.get_deadline(self)
         # TODO: Update state
-        
         inputs['next_waypoint']=self.next_waypoint
         self.state = (inputs['light'], inputs['oncoming'], inputs['right'], inputs['left'],inputs['next_waypoint'])
         self.deadline[len(self.deadline)-1] = self.env.get_deadline(self)
@@ -419,7 +422,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[16]:
+# In[66]:
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
@@ -427,12 +430,12 @@ basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials
 print "Basic Q Learning Agent done"
 
 
-# In[17]:
+# In[58]:
 
 statsFromRun(basicLearnFeatures)
 
 
-# In[18]:
+# In[59]:
 
 scorePerRun(BLdeadlines,BLrewards)
 
@@ -460,11 +463,11 @@ scorePerRun(BLdeadlines,BLrewards)
 
 # ---------------------------------------------------------------
 
-# In[ ]:
+# In[73]:
 
 if __name__ == '__main__':
     print  "running...."
-    basicLearnFeatures,BLdeadlines,BLrewards==run(agentType=BasicLearningAgent,trials=50, gui=False, delay=.5)
+    basicLearnFeatures,BLdeadlines,BLrewards==run(agentType=BasicLearningAgent,trials=25, gui=False, delay=.00)
     statsFromRun(basicLearnFeatures)
     scorePerRun(BLdeadlines,BLrewards)
 
