@@ -82,7 +82,7 @@ redirector.reset()
 print "Redirector ready"
 
 
-# In[46]:
+# In[3]:
 
 def run(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
@@ -131,11 +131,12 @@ def run(agentType,trials=10, gui=False, deadline=True, delay=0):
         print "no Qtable"
 
     return features,deadlines,rewards
+    
 
 print "run ready"
 
 
-# In[112]:
+# In[4]:
 
 # display the feedback from the prior runs graphically
 def statsFromRun(feat,DL,RW):
@@ -195,7 +196,7 @@ print "graph display ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[113]:
+# In[52]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -257,12 +258,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[114]:
+# In[53]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[115]:
+# In[54]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -280,7 +281,7 @@ features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[116]:
+# In[55]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -329,7 +330,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[125]:
+# In[56]:
 
 # run the trials for the state
 stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=100)
@@ -337,7 +338,7 @@ stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=100)
 print "StateAgent done"
 
 
-# In[118]:
+# In[57]:
 
 if console == False:
     statsFromRun(stateFeatures,StateDeadlines,StateRewards)
@@ -367,7 +368,7 @@ if console == False:
 # 
 # 
 
-# In[119]:
+# In[58]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -440,7 +441,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[120]:
+# In[59]:
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
@@ -448,7 +449,7 @@ basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials
 print "Basic Q Learning Agent done"
 
 
-# In[121]:
+# In[60]:
 
 if console == False:
     statsFromRun(basicLearnFeatures,BLdeadlines,BLrewards)
@@ -471,7 +472,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[122]:
+# In[105]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -487,18 +488,35 @@ class LearningAgent(BasicLearningAgent):
         self.steps=0
         self.features=[]
         self.Qtable={}
-        self.epsilon=0.05
-        self.gamma=0.4
+        self.epsilon=0.95
+        self.gamma=0.05
         self.total_reward=[0] 
+    
+    def set_action(self):
+        #initially we want to prefer a random action, but later we would like to trust our experience.
+        exploration_rate=32 #rate at which we approach final epsilon-> higher is slower
+        self.epsilon = self.epsilon-(self.epsilon-.05)/exploration_rate
+        
+        action = self.availableAction[random.randint(0,3)]    #take a random action
+        # 1-epsilon % of time, refer to the q-table for an action. take the max value from the available actions
+        if self.epsilon < random.random() and  self.Qtable.has_key(self.state): 
+            action=self.availableAction[self.Qtable[self.state].index(max(self.Qtable[self.state]))]
+        return action  
         
     def update_q_table(self,action,reward):
+        # if we haven't seen this state yet, initialize it
         if not self.Qtable.has_key(self.state):
             self.Qtable[self.state]=[0,0,0,0]
-       
+        #we took an action, so can now observe our new state.
         new_state=self.get_state()
         if not self.Qtable.has_key(new_state):
             self.Qtable[new_state]=[0,0,0,0]
-            
+        
+        rate=32
+        self.gamma=self.gamma+(.45-self.gamma)/rate
+        #initially we should have a very low gamma, as we can't trust our knowledge.
+        # as time goes by we should give more weight to our knowledge and grow gamma.
+        
         self.Qtable[self.state][self.availableAction.index(action)]=reward+self.gamma*max(self.Qtable[new_state])
                                                                                           
     def update(self, t):
@@ -531,19 +549,26 @@ print "LearningAgent Ready"
 
 
 # ## Enhance the driving agent - Discussion
-# We immediatly see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that agent learn to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score. 
+# We immediatly see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that agent learn to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score, the majority of times.
+# 
+# In addition to tuning the final epsilon and gamma, I have a added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is initialized with zero's, and we want to explore the available states, and record their affects. The opposite is true for gamma. In it's case, we would like to ignore any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, but we would likely be able to optimize these numbers further by implementing a gridsearch type algorithm to test the values over multiple runs, etc.
+# We could also implement methods to adjust these rates based on things other than time, for example based on the difference between the current and new values.
 
 # ---------------------------------------------------------------
 
-# In[124]:
+# In[108]:
 
 if __name__ == '__main__':
     print  "running...."
-    #run(agentType=BasicLearningAgent,trials=100, gui=console, delay=.1)
-    QlearnFeatures,QLdeadlines,QLrewards=run(agentType=LearningAgent,trials=100, deadline=True,gui=console, delay=.1)
-    statsFromRun(QlearnFeatures,QLdeadlines,QLrewards)
+    QLearnFeatures,QLdeadlines,QLrewards=run(agentType=LearningAgent,trials=100, deadline=True,gui=console, delay=.1)
+    statsFromRun(QLearnFeatures,QLdeadlines,QLrewards)
     #scorePerRun(QLdeadlines,QLrewards)
     print "\nQ Learning Agent done"
 
 
 # #EOF
+
+# In[ ]:
+
+
+
