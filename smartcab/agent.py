@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[75]:
+# In[1]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -47,7 +47,7 @@ from simulator import Simulator
 print "Environment ready"
 
 
-# In[76]:
+# In[2]:
 
 # Several of the provided modules output unuseful information during each run. 
 #  Here we provide a way to supress that output as needed. 
@@ -82,7 +82,7 @@ redirector.reset()
 print "Redirector ready"
 
 
-# In[90]:
+# In[3]:
 
 
 def run(agentType,trials=10, gui=False, deadline=False, delay=0):
@@ -150,7 +150,7 @@ print "run ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[78]:
+# In[4]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -212,12 +212,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[79]:
+# In[5]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[80]:
+# In[6]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -235,7 +235,7 @@ features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[81]:
+# In[7]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -284,7 +284,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[82]:
+# In[8]:
 
 # run the trials for the state
 
@@ -294,7 +294,7 @@ stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=25)
 print "Random Agent done"
 
 
-# In[83]:
+# In[9]:
 
 # display the feedback from the prior run
 def statsFromRun(stateFeatures):
@@ -324,7 +324,7 @@ def statsFromRun(stateFeatures):
 statsFromRun(stateFeatures)
 
 
-# In[84]:
+# In[10]:
 
 def scorePerRun(DL,RW):
     plt.figure(figsize=(14,6))
@@ -362,7 +362,7 @@ scorePerRun(StateDeadlines,StateRewards)
 # 
 # 
 
-# In[85]:
+# In[11]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -384,36 +384,55 @@ class BasicLearningAgent(RandomAgent):
         self.last_action = None
         self.total_reward=[0]
 
+    def get_state(self):
+        inputs = self.env.sense(self)
+        inputs['next_waypoint']=self.planner.next_waypoint()
+        return (inputs['light'], inputs['oncoming'], inputs['right'], inputs['left'],inputs['next_waypoint'])
+    
+    def set_action(self):
+        action = self.availableAction[random.randint(0,3)]    #take a random action
+   
+        # 1-epsilon % of time, refer to the q-table for an action. take the max value from the available actions
+        if self.epsilon < random.random() and  self.Qtable.has_key(self.state): 
+            action=self.availableAction[self.Qtable[self.state].index(max(self.Qtable[self.state]))]
+        return action    
+        
+    def update_q_table(self,action,reward):
+        if not self.Qtable.has_key(self.state):
+            self.Qtable[self.state]=[0,0,0,0]
+       
+        new_state=self.get_state()
+        if not self.Qtable.has_key(new_state):
+            self.Qtable[new_state]=[0,0,0,0]
+            
+        QSprimeAprime=max(self.Qtable[new_state])
+        self.Qtable[self.state][self.availableAction.index(action)]=reward+self.gamma*QSprimeAprime
+                                                                                          
         
     def update(self, t):
+                                                                                          
         # Gather inputs
         self.steps+=1
         
         self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
-        inputs = self.env.sense(self)
         
         deadline = self.env.get_deadline(self)
         # TODO: Update state
-        inputs['next_waypoint']=self.next_waypoint
-        self.state = (inputs['light'], inputs['oncoming'], inputs['right'], inputs['left'],inputs['next_waypoint'])
+        self.state = self.get_state()
         self.deadline[len(self.deadline)-1] = self.env.get_deadline(self)
+        
+        inputs = self.env.sense(self)
+        inputs['next_waypoint']=self.planner.next_waypoint()
         self.features[len(self.features)-1][self.steps]=inputs
         # TODO: Select action according to your policy
 
-        action = self.availableAction[random.randint(0,3)]    #take a random action
+        action = self.set_action()
         
-        # 1-epsilon % of time, refer to the q-table for an action. take the max value from the available actions
-        if self.epsilon < random.random() and  self.Qtable.has_key(self.state): 
-            action=self.availableAction[self.Qtable[self.state].index(max(self.Qtable[self.state]))]
-                                                    
         # Execute action and get reward
         reward = self.env.act(self, action)
+        
         # TODO: Learn policy based on state, action, reward
-        if self.Qtable.has_key(self.state):
-            self.Qtable[self.state][self.availableAction.index(action)]=reward
-        else:
-            self.Qtable[self.state]=[0,0,0,0]
-            self.Qtable[self.state][self.availableAction.index(action)]=reward
+        self.update_q_table(action,reward)
         
         self.last_state = self.state
         self.last_action = action
@@ -424,7 +443,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[86]:
+# In[12]:
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
@@ -432,12 +451,12 @@ basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials
 print "Basic Q Learning Agent done"
 
 
-# In[87]:
+# In[13]:
 
 statsFromRun(basicLearnFeatures)
 
 
-# In[88]:
+# In[14]:
 
 scorePerRun(BLdeadlines,BLrewards)
 
@@ -465,7 +484,7 @@ scorePerRun(BLdeadlines,BLrewards)
 
 # ---------------------------------------------------------------
 
-# In[92]:
+# In[ ]:
 
 if __name__ == '__main__':
     print  "running...."
