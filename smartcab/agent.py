@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[84]:
+# In[179]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -47,7 +47,7 @@ from simulator import Simulator
 print "Environment ready"
 
 
-# In[85]:
+# In[180]:
 
 # Several of the provided modules output unuseful information during each run. 
 #  Here we provide a way to supress that output as needed. 
@@ -82,8 +82,7 @@ redirector.reset()
 print "Redirector ready"
 
 
-# In[86]:
-
+# In[249]:
 
 def run(agentType,trials=10, gui=False, deadline=False, delay=0):
     """Run the agent for a finite number of trials."""
@@ -112,20 +111,20 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
         
     print "Successfull runs = {}".format(a.goal)
     print "----------------------------------------------------------"
-    features= []
-    deadlines = []
+    features= [] # the state at each turn in the run
+    deadlines = [] # the deadline at each turn in the run
     for i in range(len(a.features)):
         features.append(pd.DataFrame(a.features[i]).T)
         deadlines.append(a.deadline[i])
         
-    rewards=[]
+    rewards=[] # the total reward for each run
     for i in range(len(a.total_reward)):
         rewards.append(a.total_reward[i])
 
 
     try:
-        print "Qtable:"
-        print "state=light, oncoming, right, left, next_waypoint  / actions=None, forward, left, right"
+        print "Qtable: ",len(a.Qtable)
+        print "state=light, oncoming, right, left, next_waypoint  / actions=None, forward, left, right\n"
         for r in a.Qtable:
             print "state={}, {}, {}, {}, {} / action={}".format(r[0],r[1],r[2],r[3],r[4], a.Qtable[r])
     except:
@@ -150,7 +149,7 @@ print "run ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[87]:
+# In[250]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -212,12 +211,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[88]:
+# In[251]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[89]:
+# In[252]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -235,7 +234,7 @@ features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[90]:
+# In[253]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -284,7 +283,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[91]:
+# In[254]:
 
 # run the trials for the state
 
@@ -294,7 +293,7 @@ stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=25)
 print "Random Agent done"
 
 
-# In[92]:
+# In[255]:
 
 # display the feedback from the prior run
 def statsFromRun(stateFeatures):
@@ -324,7 +323,7 @@ def statsFromRun(stateFeatures):
 statsFromRun(stateFeatures)
 
 
-# In[93]:
+# In[256]:
 
 def scorePerRun(DL,RW):
     plt.figure(figsize=(14,6))
@@ -362,7 +361,7 @@ scorePerRun(StateDeadlines,StateRewards)
 # 
 # 
 
-# In[98]:
+# In[257]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -378,10 +377,8 @@ class BasicLearningAgent(RandomAgent):
         self.steps=0
         self.features=[]
         self.Qtable={}
-        self.epsilon=0.2
-        self.gamma=.4
-        self.last_state = None
-        self.last_action = None
+        self.epsilon=0.0
+        self.gamma=0.0
         self.total_reward=[0]
 
     def get_state(self):
@@ -416,27 +413,28 @@ class BasicLearningAgent(RandomAgent):
         
         # TODO: Update state
         self.state = self.get_state()
-        self.last_state = self.state
-
-        self.deadline[len(self.deadline)-1] = self.env.get_deadline(self)
         
+        #store details of this run
+        self.deadline[len(self.deadline)-1] = self.env.get_deadline(self)
         self.features[len(self.features)-1][self.steps]=self.env.sense(self)
         self.features[len(self.features)-1][self.steps]['next_waypoint']=self.planner.next_waypoint()
         
         # TODO: Select action according to your policy
         action = self.set_action()
-        self.last_action = action
         # Execute action and get reward
         reward = self.env.act(self, action)
-        self.total_reward[len(self.total_reward)-1] =self.total_reward[len(self.total_reward)-1]+reward
 
         # TODO: Learn policy based on state, action, reward
         self.update_q_table(action,reward)
         
+        #store details about our rewards
+        self.total_reward[len(self.total_reward)-1] =self.total_reward[len(self.total_reward)-1]+reward
+
+        
 print "BasicLearningAgent Ready"
 
 
-# In[99]:
+# In[258]:
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
@@ -444,18 +442,19 @@ basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials
 print "Basic Q Learning Agent done"
 
 
-# In[96]:
+# In[259]:
 
 statsFromRun(basicLearnFeatures)
 
 
-# In[97]:
+# In[260]:
 
 scorePerRun(BLdeadlines,BLrewards)
 
 
 # ### Implement Q-Learning - Discussion
-# With a basic Qlearning algorithm, we note that the agent quickly learns a set of rules that allow the agent to move toward the objective. Generarlly speaking the agent, is moving to the destination, but may not always make optimal choices. With this version of Q-Learning, we don't see a large continued increase in the agent speed toward the destination.
+# With a basic Qlearning algorithm, we note that the agent quickly learns a set of rules that allow the agent to move toward the objective. Generarlly speaking the agent, is moving to the destination, but may not always make optimal choices.  we don't see a large continued increase in the agent speed toward the destination after the initial runs. We see the agent begin to obey some traffic rules and generally move toward it's destination, but we still see strange behavior such as repeated right turns back to the original destination, or staying in a no action state for extended periods, without much change in pattern through the run.
+# 
 
 # ---------------------------------------------------------------
 
@@ -467,9 +466,64 @@ scorePerRun(BLdeadlines,BLrewards)
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[ ]:
+# In[261]:
 
+class LearningAgent(BasicLearningAgent):
+    """An agent that learns to drive in the smartcab world."""
 
+    def __init__(self, env):
+        super(LearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None
+        self.color = 'red'  # override color
+        self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
+        # TODO: Initialize any additional variables here
+        self.availableAction = [None, 'forward', 'left', 'right']   
+        self.next_waypoint   = None
+        self.goal=0
+        self.steps=0
+        self.features=[]
+        self.Qtable={}
+        self.epsilon=0.2
+        self.gamma=0.45
+        self.total_reward=[0] 
+        
+    def update_q_table(self,action,reward):
+        if not self.Qtable.has_key(self.state):
+            self.Qtable[self.state]=[0,0,0,0]
+       
+        new_state=self.get_state()
+        if not self.Qtable.has_key(new_state):
+            self.Qtable[new_state]=[0,0,0,0]
+            
+        self.Qtable[self.state][self.availableAction.index(action)]=reward+self.gamma*max(self.Qtable[new_state])
+                                                                                          
+        
+    def update(self, t):
+                                                                                          
+        # Gather inputs
+        self.steps+=1
+        self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
+        
+        # TODO: Update state
+        self.state = self.get_state()
+        
+        #store details of this run
+        self.deadline[len(self.deadline)-1] = self.env.get_deadline(self)
+        self.features[len(self.features)-1][self.steps]=self.env.sense(self)
+        self.features[len(self.features)-1][self.steps]['next_waypoint']=self.planner.next_waypoint()
+        
+        # TODO: Select action according to your policy
+        action = self.set_action()
+        # Execute action and get reward
+        reward = self.env.act(self, action)
+
+        # TODO: Learn policy based on state, action, reward
+        self.update_q_table(action,reward)
+        
+        #store details about our rewards
+        self.total_reward[len(self.total_reward)-1] =self.total_reward[len(self.total_reward)-1]+reward
+
+        
+print "LearningAgent Ready"
 
 
 # ## Enhance the driving agent - Discussion
@@ -477,13 +531,14 @@ scorePerRun(BLdeadlines,BLrewards)
 
 # ---------------------------------------------------------------
 
-# In[ ]:
+# In[262]:
 
 if __name__ == '__main__':
     print  "running...."
-    basicLearnFeatures,BLdeadlines,BLrewards==run(agentType=BasicLearningAgent,trials=25, gui=console, delay=.1)
-    statsFromRun(basicLearnFeatures)
-    scorePerRun(BLdeadlines,BLrewards)
+    #run(agentType=BasicLearningAgent,trials=100, gui=console, delay=.1)
+    QlearnFeatures,QLdeadlines,QLrewards=run(agentType=LearningAgent,trials=100, deadline=True,gui=console, delay=.1)
+    statsFromRun(QlearnFeatures)
+    scorePerRun(QLdeadlines,QLrewards)
 
 
 # #EOF
