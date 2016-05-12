@@ -85,7 +85,7 @@ redirector.reset()
 print "Redirector ready"
 
 
-# In[3]:
+# In[39]:
 
 def run(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
@@ -127,7 +127,7 @@ def run(agentType,trials=10, gui=False, deadline=True, delay=0):
 
     try:
         print "Qtable: ",len(a.Qtable)
-        print "state=light, oncoming, right, left, next_waypoint  / actions=None, forward, left, right\n"
+        print "state=light, oncoming, right, left, next_waypoint  / actions= forward, left, right,None \n"
         for r in a.Qtable:
             print "state={}, {}, {}, {}, {} / action={}".format(r[0],r[1],r[2],r[3],r[4], a.Qtable[r])
     except:
@@ -139,7 +139,7 @@ def run(agentType,trials=10, gui=False, deadline=True, delay=0):
 print "run ready"
 
 
-# In[4]:
+# In[40]:
 
 # display the feedback from the prior runs graphically
 def statsFromRun(feat,DL,RW):
@@ -199,7 +199,7 @@ print "Graph display ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[5]:
+# In[41]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -209,7 +209,7 @@ class RandomAgent(Agent):
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
-        self.availableAction = [None, 'forward', 'left', 'right']   
+        self.availableAction = ['forward', 'left', 'right',None]   
         self.goal=0
         self.steps=0
         self.features=[]
@@ -261,14 +261,14 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[23]:
+# In[42]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
     print "RandomAgent, no deadlines, Done"
 
 
-# In[17]:
+# In[43]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
@@ -288,7 +288,7 @@ if console == False:
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[24]:
+# In[44]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -298,7 +298,7 @@ class StateAgent(RandomAgent):
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
-        self.availableAction = [None, 'forward', 'left', 'right']   
+        self.availableAction = ['forward', 'left', 'right',None]   
         self.next_waypoint   = None
         self.goal=0
         self.steps=0
@@ -337,7 +337,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[25]:
+# In[45]:
 
 if console == False:
     # run the trials for the state
@@ -370,7 +370,7 @@ if console == False:
 # 
 # 
 
-# In[26]:
+# In[46]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -380,7 +380,7 @@ class BasicLearningAgent(RandomAgent):
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
-        self.availableAction = [None, 'forward', 'left', 'right']   
+        self.availableAction = ['forward', 'left', 'right',None]   
         self.next_waypoint   = None
         self.goal=0
         self.steps=0
@@ -443,7 +443,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[27]:
+# In[47]:
 
 if console == False:
     # run the trials for the Basic Q learning agent
@@ -469,7 +469,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[28]:
+# In[48]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -479,7 +479,7 @@ class LearningAgent(BasicLearningAgent):
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
-        self.availableAction = [None, 'forward', 'left', 'right']   
+        self.availableAction = [ 'forward', 'left', 'right',None]   
         self.next_waypoint   = None
         self.goal=0
         self.steps=0
@@ -507,13 +507,14 @@ class LearningAgent(BasicLearningAgent):
         #we took an action, so can now observe our new state.
         new_state=self.get_state()
         if not self.Qtable.has_key(new_state):
-            self.Qtable[new_state]=[0,0,0,0]
+            self.Qtable[new_state]=[random.random(),random.random(),random.random(),random.random()]
         
-        rate=32
-        self.gamma=self.gamma+(.45-self.gamma)/rate
         #initially we should have a very low gamma, as we can't trust our knowledge.
         # as time goes by we should give more weight to our knowledge and grow gamma.
+        rate=32
+        self.gamma=self.gamma+(.45-self.gamma)/rate
         
+        #Set the new value in the Q table based on the Q-learning method
         self.Qtable[self.state][self.availableAction.index(action)]=reward+self.gamma*max(self.Qtable[new_state])
                                                                                           
     def update(self, t):
@@ -546,14 +547,14 @@ print "LearningAgent Ready"
 
 
 # ## Enhance the driving agent - Discussion
-# We immediatly see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that agent learn to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score, the majority of times.
+# We immediatly see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that the agent learns to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score, the majority of times. Even at the end of the run, we do still seem odd behaviors, as the agent tries new methods according to epsilon, or encounters new states.
 # 
 # In addition to tuning the final epsilon and gamma, I have a added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is initialized with zero's, and we want to explore the available states, and record their affects. The opposite is true for gamma. In it's case, we would like to ignore any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, but we would likely be able to optimize these numbers further by implementing a gridsearch type algorithm to test the values over multiple runs, etc.
 # We could also implement methods to adjust these rates based on things other than time, for example based on the difference between the current and new values.
 
 # ---------------------------------------------------------------
 
-# In[33]:
+# In[49]:
 
 if __name__ == '__main__':
     print  "running...."
