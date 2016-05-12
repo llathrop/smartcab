@@ -2,7 +2,9 @@
 # coding: utf-8
 
 # # Teach a smartcab to drive
-# 
+# ## Project 4 for the Udacity Machine Learning Nanodegree
+# In this project, we will use Q-learning to train a smartcab to follow traffic rules and reach it's destination in a timely manor
+#  
 # 
 # ## Setup
 # 
@@ -25,7 +27,7 @@ import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
-try:
+try: # attempt to determine if we are running within a notebook or on the console.
     cfg = get_ipython().config 
     if cfg['IPKernelApp']['parent_appname'] == 'ipython-notebook':
         print "in notebook"
@@ -35,10 +37,11 @@ try:
         print "in notebook"
         from IPython.display import display # Allows the use of display() for DataFrames
         get_ipython().magic(u'matplotlib inline')
-    console=False
+    console=False # either condition above means that we are in a Notebook
 except NameError:
     print "in console"
     console=True
+    
 sys.path.append("./smartcab/")
 from environment import Agent, Environment
 from planner import RoutePlanner
@@ -179,7 +182,7 @@ def scorePerRun(DL,RW):
     plt.show()
     plt.close()
 
-print "graph display ready"    
+print "Graph display ready"    
 
 
 # ## Implement a basic driving agent
@@ -196,7 +199,7 @@ print "graph display ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[52]:
+# In[5]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -258,19 +261,23 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[53]:
+# In[23]:
 
-features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
+if console == False:
+    features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
+    print "RandomAgent, no deadlines, Done"
 
 
-# In[54]:
+# In[17]:
 
-features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
+if console == False:
+    features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
+    print "RandomAgent, with deadlines, Done"
 
 
 # ### Random Agent - Discussion:
 # 
-# When we run an agent with a random action policy, we see that it will move about the board with no pattern, and will eventually reach the destination. If we allow the use of deadlines, we see that the agent rarely reaches the destination in time, although it may still occur.
+# When we run an agent with a random action policy, we see that it will move about the board with no pattern, and will eventually reach the destination, in most cases. If we allow the use of deadlines, we see that the agent rarely reaches the destination in time, although it may still occur.
 
 # ---------------------------------------------------------------
 
@@ -281,7 +288,7 @@ features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[55]:
+# In[24]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -330,19 +337,14 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[56]:
-
-# run the trials for the state
-stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=100)
-
-print "StateAgent done"
-
-
-# In[57]:
+# In[25]:
 
 if console == False:
+    # run the trials for the state
+    stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=100)    
     statsFromRun(stateFeatures,StateDeadlines,StateRewards)
     #scorePerRun(StateDeadlines,StateRewards)
+    print "StateAgent done"
 
 
 # ### Identify and update state - Discussion.
@@ -368,7 +370,7 @@ if console == False:
 # 
 # 
 
-# In[58]:
+# In[26]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -441,19 +443,14 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[59]:
-
-# run the trials for the Basic Q learning agent
-basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
-
-print "Basic Q Learning Agent done"
-
-
-# In[60]:
+# In[27]:
 
 if console == False:
+    # run the trials for the Basic Q learning agent
+    basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
     statsFromRun(basicLearnFeatures,BLdeadlines,BLrewards)
     #scorePerRun(BLdeadlines,BLrewards)
+    print "Basic Q Learning Agent done"
 
 
 # ### Implement Q-Learning - Discussion
@@ -472,7 +469,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[105]:
+# In[28]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -556,7 +553,7 @@ print "LearningAgent Ready"
 
 # ---------------------------------------------------------------
 
-# In[108]:
+# In[33]:
 
 if __name__ == '__main__':
     print  "running...."
