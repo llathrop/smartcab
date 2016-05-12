@@ -11,7 +11,7 @@
 # 
 # 
 
-# In[179]:
+# In[1]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -47,7 +47,7 @@ from simulator import Simulator
 print "Environment ready"
 
 
-# In[180]:
+# In[2]:
 
 # Several of the provided modules output unuseful information during each run. 
 #  Here we provide a way to supress that output as needed. 
@@ -82,9 +82,9 @@ redirector.reset()
 print "Redirector ready"
 
 
-# In[249]:
+# In[46]:
 
-def run(agentType,trials=10, gui=False, deadline=False, delay=0):
+def run(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
     
     # Set up environment and agent
@@ -135,6 +135,51 @@ def run(agentType,trials=10, gui=False, deadline=False, delay=0):
 print "run ready"
 
 
+# In[94]:
+
+# display the feedback from the prior runs graphically
+def statsFromRun(feat,DL,RW):
+    left=pd.Series()
+    light=pd.Series()
+    next_waypoint=pd.Series()
+    oncoming=pd.Series()
+    right=pd.Series()
+    for f in feat:
+        left= left.add(pd.value_counts(f.left.ravel()), fill_value=0)
+        light= light.add(pd.value_counts(f.light.ravel()), fill_value=0)
+        next_waypoint= next_waypoint.add(pd.value_counts(f.next_waypoint.ravel()), fill_value=0)
+        oncoming= oncoming.add(pd.value_counts(f.oncoming.ravel()), fill_value=0)
+        right= right.add(pd.value_counts(f.right.ravel()), fill_value=0)
+
+    fig, axes = plt.subplots(nrows=2, ncols=3,figsize=(14,6))
+    fig.suptitle( "Runs:{}".format(len(stateFeatures)))
+
+    left.plot(kind='bar', title="Left",ax=axes[0,0])
+    light.plot(kind='bar', title="light",ax=axes[0,1])
+    next_waypoint.plot(kind='bar', title="next_waypoint",ax=axes[0,2])
+    oncoming.plot(kind='bar', title="oncoming",ax=axes[1,0])
+    right.plot(kind='bar', title="right",ax=axes[1,2])
+    axes[1,1].plot(DL,label="Deadlines")
+    axes[1,1].plot(RW,label="Rewards")
+    #axes[1,1].xlabel('Run')
+    axes[1,1].legend(loc=2)
+    #axes[1,1].title("Deadline and Rewards per Run")
+    
+    plt.show()
+    plt.close()
+    
+def scorePerRun(DL,RW):
+    plt.figure(figsize=(14,6))
+    plt.plot(DL,label="Deadlines")
+    plt.plot(RW,label="Rewards")
+    plt.xlabel('Run')
+    plt.legend()
+    plt.title("Deadline and Rewards per Run")
+    plt.show()
+    plt.close()
+    
+
+
 # ## Implement a basic driving agent
 # 
 # Implement the basic driving agent, which processes the following inputs at each time step:
@@ -149,7 +194,7 @@ print "run ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[250]:
+# In[79]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -211,12 +256,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[251]:
+# In[80]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[252]:
+# In[81]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -234,7 +279,7 @@ features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[253]:
+# In[82]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -283,59 +328,22 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[254]:
+# In[83]:
 
 # run the trials for the state
 
 
-stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=25)
+stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=100)
 
 print "Random Agent done"
 
 
-# In[255]:
-
-# display the feedback from the prior run
-def statsFromRun(stateFeatures):
-    left=pd.Series()
-    light=pd.Series()
-    next_waypoint=pd.Series()
-    oncoming=pd.Series()
-    right=pd.Series()
-    for f in stateFeatures:
-        left= left.add(pd.value_counts(f.left.ravel()), fill_value=0)
-        light= light.add(pd.value_counts(f.light.ravel()), fill_value=0)
-        next_waypoint= next_waypoint.add(pd.value_counts(f.next_waypoint.ravel()), fill_value=0)
-        oncoming= oncoming.add(pd.value_counts(f.oncoming.ravel()), fill_value=0)
-        right= right.add(pd.value_counts(f.right.ravel()), fill_value=0)
-
-    fig, axes = plt.subplots(nrows=2, ncols=3,figsize=(14,6))
-    fig.suptitle( "Runs:{}".format(len(stateFeatures)))
-
-    left.plot(kind='bar', title="Left",ax=axes[0,0])
-    light.plot(kind='bar', title="light",ax=axes[0,1])
-    next_waypoint.plot(kind='bar', title="next_waypoint",ax=axes[0,2])
-    oncoming.plot(kind='bar', title="oncoming",ax=axes[1,0])
-    right.plot(kind='bar', title="right",ax=axes[1,2])
-    plt.show()
-    plt.close()
-    
-statsFromRun(stateFeatures)
+# In[95]:
 
 
-# In[256]:
+statsFromRun(stateFeatures,StateDeadlines,StateRewards)
 
-def scorePerRun(DL,RW):
-    plt.figure(figsize=(14,6))
-    plt.plot(DL,label="Deadlines")
-    plt.plot(RW,label="Rewards")
-    plt.xlabel('Run')
-    plt.legend()
-    plt.title("Deadline and Rewards per Run")
-    plt.show()
-    plt.close()
-    
-scorePerRun(StateDeadlines,StateRewards)
+#scorePerRun(StateDeadlines,StateRewards)
 
 
 # ### Identify and update state - Discussion.
@@ -361,7 +369,7 @@ scorePerRun(StateDeadlines,StateRewards)
 # 
 # 
 
-# In[257]:
+# In[96]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -434,7 +442,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[258]:
+# In[97]:
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
@@ -442,18 +450,16 @@ basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials
 print "Basic Q Learning Agent done"
 
 
-# In[259]:
+# In[98]:
 
-statsFromRun(basicLearnFeatures)
-
-
-# In[260]:
-
-scorePerRun(BLdeadlines,BLrewards)
+statsFromRun(basicLearnFeatures,BLdeadlines,BLrewards)
+#scorePerRun(BLdeadlines,BLrewards)
 
 
 # ### Implement Q-Learning - Discussion
-# With a basic Qlearning algorithm, we note that the agent quickly learns a set of rules that allow the agent to move toward the objective. Generarlly speaking the agent, is moving to the destination, but may not always make optimal choices.  we don't see a large continued increase in the agent speed toward the destination after the initial runs. We see the agent begin to obey some traffic rules and generally move toward it's destination, but we still see strange behavior such as repeated right turns back to the original destination, or staying in a no action state for extended periods, without much change in pattern through the run.
+# With a basic Qlearning algorithm, we note that the agent quickly learns a set of rules that allow the agent to move toward the objective. Generarlly speaking the agent, is moving to the destination, but does not always make optimal choices.  We see the agent begin to obey some traffic rules and make moves toward it's destination. We can see that now the reward in each run is generally positive.
+# 
+# We don't see a large continued increase in the agent speed toward the destination after the initial runs. We still see strange behavior such as repeated right turns back to the original destination, or staying in a no action state for extended periods, without much change in pattern through the run. With Epsilon set to 0, we don't see the agent select new behaviors, and with Gamma at 0 we don't consider our future state.
 # 
 
 # ---------------------------------------------------------------
@@ -466,7 +472,7 @@ scorePerRun(BLdeadlines,BLrewards)
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[261]:
+# In[99]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -482,8 +488,8 @@ class LearningAgent(BasicLearningAgent):
         self.steps=0
         self.features=[]
         self.Qtable={}
-        self.epsilon=0.2
-        self.gamma=0.45
+        self.epsilon=0.05
+        self.gamma=0.4
         self.total_reward=[0] 
         
     def update_q_table(self,action,reward):
@@ -496,7 +502,6 @@ class LearningAgent(BasicLearningAgent):
             
         self.Qtable[self.state][self.availableAction.index(action)]=reward+self.gamma*max(self.Qtable[new_state])
                                                                                           
-        
     def update(self, t):
                                                                                           
         # Gather inputs
@@ -527,18 +532,18 @@ print "LearningAgent Ready"
 
 
 # ## Enhance the driving agent - Discussion
-# 
+# We immediatly see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that agent learn to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score. 
 
 # ---------------------------------------------------------------
 
-# In[262]:
+# In[100]:
 
 if __name__ == '__main__':
     print  "running...."
     #run(agentType=BasicLearningAgent,trials=100, gui=console, delay=.1)
     QlearnFeatures,QLdeadlines,QLrewards=run(agentType=LearningAgent,trials=100, deadline=True,gui=console, delay=.1)
-    statsFromRun(QlearnFeatures)
-    scorePerRun(QLdeadlines,QLrewards)
+    statsFromRun(QlearnFeatures,QLdeadlines,QLrewards)
+    #scorePerRun(QLdeadlines,QLrewards)
 
 
 # #EOF
