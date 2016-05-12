@@ -135,7 +135,7 @@ def run(agentType,trials=10, gui=False, deadline=True, delay=0):
 print "run ready"
 
 
-# In[94]:
+# In[112]:
 
 # display the feedback from the prior runs graphically
 def statsFromRun(feat,DL,RW):
@@ -152,7 +152,7 @@ def statsFromRun(feat,DL,RW):
         right= right.add(pd.value_counts(f.right.ravel()), fill_value=0)
 
     fig, axes = plt.subplots(nrows=2, ncols=3,figsize=(14,6))
-    fig.suptitle( "Runs:{}".format(len(stateFeatures)))
+    fig.suptitle( "Runs:{}".format(len(feat)))
 
     left.plot(kind='bar', title="Left",ax=axes[0,0])
     light.plot(kind='bar', title="light",ax=axes[0,1])
@@ -177,7 +177,8 @@ def scorePerRun(DL,RW):
     plt.title("Deadline and Rewards per Run")
     plt.show()
     plt.close()
-    
+
+print "graph display ready"    
 
 
 # ## Implement a basic driving agent
@@ -194,7 +195,7 @@ def scorePerRun(DL,RW):
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[79]:
+# In[113]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -256,12 +257,12 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[80]:
+# In[114]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
 
 
-# In[81]:
+# In[115]:
 
 features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
 
@@ -279,7 +280,7 @@ features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[82]:
+# In[116]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -328,22 +329,19 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[83]:
+# In[125]:
 
 # run the trials for the state
-
-
 stateFeatures,StateDeadlines,StateRewards=run(agentType=StateAgent,trials=100)
 
-print "Random Agent done"
+print "StateAgent done"
 
 
-# In[95]:
+# In[118]:
 
-
-statsFromRun(stateFeatures,StateDeadlines,StateRewards)
-
-#scorePerRun(StateDeadlines,StateRewards)
+if console == False:
+    statsFromRun(stateFeatures,StateDeadlines,StateRewards)
+    #scorePerRun(StateDeadlines,StateRewards)
 
 
 # ### Identify and update state - Discussion.
@@ -369,7 +367,7 @@ statsFromRun(stateFeatures,StateDeadlines,StateRewards)
 # 
 # 
 
-# In[96]:
+# In[119]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -442,7 +440,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[97]:
+# In[120]:
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
@@ -450,10 +448,11 @@ basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials
 print "Basic Q Learning Agent done"
 
 
-# In[98]:
+# In[121]:
 
-statsFromRun(basicLearnFeatures,BLdeadlines,BLrewards)
-#scorePerRun(BLdeadlines,BLrewards)
+if console == False:
+    statsFromRun(basicLearnFeatures,BLdeadlines,BLrewards)
+    #scorePerRun(BLdeadlines,BLrewards)
 
 
 # ### Implement Q-Learning - Discussion
@@ -472,7 +471,7 @@ statsFromRun(basicLearnFeatures,BLdeadlines,BLrewards)
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[99]:
+# In[122]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -536,7 +535,7 @@ print "LearningAgent Ready"
 
 # ---------------------------------------------------------------
 
-# In[100]:
+# In[124]:
 
 if __name__ == '__main__':
     print  "running...."
@@ -544,6 +543,7 @@ if __name__ == '__main__':
     QlearnFeatures,QLdeadlines,QLrewards=run(agentType=LearningAgent,trials=100, deadline=True,gui=console, delay=.1)
     statsFromRun(QlearnFeatures,QLdeadlines,QLrewards)
     #scorePerRun(QLdeadlines,QLrewards)
+    print "\nQ Learning Agent done"
 
 
 # #EOF
