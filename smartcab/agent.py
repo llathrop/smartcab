@@ -362,7 +362,7 @@ scorePerRun(StateDeadlines,StateRewards)
 # 
 # 
 
-# In[11]:
+# In[23]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -378,8 +378,8 @@ class BasicLearningAgent(RandomAgent):
         self.steps=0
         self.features=[]
         self.Qtable={}
-        self.epsilon=0.1
-        self.gamma=0
+        self.epsilon=0.2
+        self.gamma=.4
         self.last_state = None
         self.last_action = None
         self.total_reward=[0]
@@ -443,7 +443,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[12]:
+# In[27]:
 
 # run the trials for the Basic Q learning agent
 basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
@@ -451,12 +451,12 @@ basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials
 print "Basic Q Learning Agent done"
 
 
-# In[13]:
+# In[28]:
 
 statsFromRun(basicLearnFeatures)
 
 
-# In[14]:
+# In[29]:
 
 scorePerRun(BLdeadlines,BLrewards)
 
