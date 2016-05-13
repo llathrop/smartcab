@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[1]:
+# In[89]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -50,7 +50,7 @@ from simulator import Simulator
 print "Environment ready"
 
 
-# In[2]:
+# In[90]:
 
 # Several of the provided modules output unuseful information during each run. 
 #  Here we provide a way to supress that output as needed. 
@@ -85,7 +85,7 @@ redirector.reset()
 print "Redirector ready"
 
 
-# In[3]:
+# In[91]:
 
 def run(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
@@ -139,7 +139,7 @@ def run(agentType,trials=10, gui=False, deadline=True, delay=0):
 print "run ready"
 
 
-# In[49]:
+# In[92]:
 
 # display the feedback from the prior runs graphically
 def statsFromRun(feat,DL,RW):
@@ -166,7 +166,10 @@ def statsFromRun(feat,DL,RW):
     axes[1,1].plot(DL,label="Deadlines")
     axes[1,1].plot(RW,label="Rewards")
     avgDist=3
-    axes[1,1].plot([(np.mean(DL[i-avgDist:i+avgDist])+np.mean(RW[i-3:i+3]))/2 for i in range(len(DL))],label="Avg {:2.2f}".format((np.mean(DL)+np.mean(RW))/2))
+    axes[1,1].plot(     #add a line to the graph representing the avg of all point within avgDist of the current run. 
+        [(np.mean(DL[i-avgDist:i+avgDist])+np.mean(RW[i-avgDist:i+avgDist]))/2 for i in range(len(DL))],
+        label="Avg {:2.2f}".format( # use the last half avg in the label
+            (np.mean(DL[len(DL)/2:len(DL)])+np.mean(RW[len(DL)/2:len(DL)]))/2)) 
     #axes[1,1].xlabel('Run')
     axes[1,1].legend(loc=2)
     #axes[1,1].title("Deadline and Rewards per Run")
@@ -179,6 +182,11 @@ def scorePerRun(DL,RW):
     plt.figure(figsize=(14,6))
     plt.plot(DL,label="Deadlines")
     plt.plot(RW,label="Rewards")
+    avgDist=3
+    plt.plot(     #add a line to the graph representing the avg of all point within avgDist of the current run. 
+        [(np.mean(DL[i-avgDist:i+avgDist])+np.mean(RW[i-avgDist:i+avgDist]))/2 for i in range(len(DL))],
+        label="Avg {:2.2f}".format( # use the last half avg in the label
+            (np.mean(DL[len(DL)/2:len(DL)])+np.mean(RW[len(DL)/2:len(DL)]))/2)) 
     plt.xlabel('Run')
     plt.legend()
     plt.title("Deadline and Rewards per Run")
@@ -202,7 +210,7 @@ print "Graph display ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[50]:
+# In[93]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -264,14 +272,14 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[51]:
+# In[94]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
     print "RandomAgent, no deadlines, Done"
 
 
-# In[52]:
+# In[95]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
@@ -291,7 +299,7 @@ if console == False:
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[53]:
+# In[96]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -340,7 +348,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[54]:
+# In[97]:
 
 if console == False:
     # run the trials for the state
@@ -373,7 +381,7 @@ if console == False:
 # 
 # 
 
-# In[55]:
+# In[98]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -446,7 +454,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[56]:
+# In[99]:
 
 if console == False:
     # run the trials for the Basic Q learning agent
@@ -456,7 +464,7 @@ if console == False:
     print "Basic Q Learning Agent done"
 
 
-# In[57]:
+# In[100]:
 
 class BasicLearningAgent2(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -501,7 +509,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[58]:
+# In[101]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -588,7 +596,7 @@ print "LearningAgent Ready"
 
 # ---------------------------------------------------------------
 
-# In[59]:
+# In[102]:
 
 if __name__ == '__main__':
     print  "running...."
