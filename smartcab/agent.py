@@ -186,7 +186,17 @@ def scorePerRun(DL,RW):
     plt.plot(     #add a line to the graph representing the avg of all point within avgDist of the current run. 
         [(np.mean(DL[i-avgDist:i+avgDist])+np.mean(RW[i-avgDist:i+avgDist]))/2 for i in range(len(DL))],
         label="Avg {:2.2f}".format( # use the last half avg in the label
-            (np.mean(DL[len(DL)/2:len(DL)])+np.mean(RW[len(DL)/2:len(DL)]))/2)) 
+            (np.mean(DL[len(DL)/2:len(DL)])+np.mean(RW[len(RW)/2:len(RW)]))/2)) 
+    avgDist=6
+    plt.plot(     #add a line to the graph representing the avg of DL within avgDist of the current run. 
+        [np.mean(DL[i-avgDist:i+avgDist]) for i in range(len(DL))],
+        label="DL Avg {:2.2f}".format( # use the last half avg in the label
+            np.mean(DL[len(DL)/2:len(DL)]))) 
+    plt.plot(     #add a line to the graph representing the avg of RW within avgDist of the current run. 
+        [np.mean(RW[i-avgDist:i+avgDist]) for i in range(len(RW))],
+        label="RW Avg {:2.2f}".format( # use the last half avg in the label
+            np.mean(RW[len(RW)/2:len(RW)]))) 
+    
     plt.xlabel('Run')
     plt.legend()
     plt.title("Deadline and Rewards per Run")
@@ -275,7 +285,7 @@ print "RandomAgent ready"
 # In[6]:
 
 if console == False:
-    features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
+    features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline
     print "RandomAgent, no deadlines, Done"
 
 
@@ -348,7 +358,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[28]:
+# In[9]:
 
 if console == False:
     # run the trials for the state
@@ -361,13 +371,13 @@ if console == False:
 # ### Identify and update state - Discussion.
 # When we sense our environment, we perceive 5 variables, with several possible states These include: left, light, next_waypoint, oncoming, and right. We can see right away that light and next_waypoint contains new information at every poll, while the others usually have no value. 
 # 
-# It's not readily apparent that the direction of travel information of the other cars (described by left/right/oncoming) is relevant to our agent. A case could be made to remove the direction information, and only retain information about another car being present at the light. This would have the benefit of reducing the number of possible states, increasing the speed of the agent. This may be a valuable approach in resource constrained environments. 
+# It's not readily apparent that the direction of travel information of the other cars (described by left/right/oncoming) is relevant to our agent. A case could be made to remove the direction information, and only retain information about another car being present at the light. This would have the benefit of reducing the number of possible states, increasing the learning speed of the agent. This may be a valuable approach in resource constrained environments. 
 # 
 # The downside is that the agent may pick an action that causes a longer trip. Early in the learning phase, it could also pick an action incorrectly. For instance, by proceeding through a light when the opposite car is turning left. In this case, it may have previously seen a positive reward for moving through the light, because the opposite car was not turning. This time through, it will recieve a negative reward, and in the future when a car is at the oncoming light, it will always wait till the intersection is clear.
 # 
-# In the interest of correctness, we will choose to use the state as returned from the sensor, with the addition of the next_waypoint.
+# In the interest of correct action, we will choose to use the state as returned from the sensor, with the addition of the next_waypoint.
 # 
-# While I have tracked the deadline, it is not apparent that it will provide useful information to the agent. It is useful to see note that the agent does not see any usefull increase in the deadline value yet. We may expect this to adapt as we implement learning.
+# While I have tracked the deadline, it is not apparent that it will provide useful information to the agent. It is useful to  note that the agent does not see any change in the deadline value yet. We may expect this to adapt as we implement learning.
 
 # ---------------------------------------------------------------
 
@@ -454,7 +464,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[33]:
+# In[11]:
 
 if console == False:
     # run the trials for the Basic Q learning agent
@@ -464,7 +474,7 @@ if console == False:
     print "Basic Q Learning Agent done"
 
 
-# In[64]:
+# In[19]:
 
 class BasicLearningAgent2(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -497,7 +507,7 @@ if console == False:
 # 
 # We don't see a large continued increase in the agent speed toward the destination after the initial runs. We still see strange behavior such as repeated right turns back to the original destination, or staying in a no action state for extended periods, without much change in pattern through the run. With Epsilon set to 0, we don't see the agent select new behaviors, and with Gamma at 0 we don't consider our future state.
 # 
-# One interesting note is the difference made by re-ordering the available action list. Placing the 'None' value at the end plays to the bias of the 'max' function, in which if all values are the same, will select the first match. Since we initialize the list to zero, if 'None' is first in the list, the agent tends to take no action, and never reaches the goal. by reordering the list, we bias the agent toward action, allowing the agent to perform significantly better. 
+# One interesting note is the difference made by re-ordering the available action list. Placing the 'None' value at the end plays to the bias of the 'max' function, in which if all values are the same, will select the first match. Since we initialize the list to zero, if 'None' is first in the list, the agent tends to take no action, and never reaches the goal. By reordering the list, we bias the agent toward action, allowing the agent to perform significantly better. 
 
 # ---------------------------------------------------------------
 
@@ -509,7 +519,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[72]:
+# In[13]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -589,18 +599,18 @@ print "LearningAgent Ready"
 # ## Enhance the driving agent - Discussion
 # We immediatly see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that the agent learns to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score, the majority of times. This is despite biasing the action list to 'None', as in the previous example. Even at the end of the run, we do still see odd behaviors, as the agent tries new methods according to epsilon, or encounters new states.
 # 
-# In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is now initialized with random values, and we want to explore the available states, and record their affects. The opposite is true for gamma. In it's case, we would like to highly discount any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, but we would likely be able to optimize these numbers further by implementing a gridsearch type algorithm to test the values over multiple runs, etc. 
+# In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is now initialized with random values, and we want to explore the available states, and record their effects. The opposite is true for gamma. In it's case, we would like to highly discount any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, but we would likely be able to optimize these numbers further by implementing a gridsearch type algorithm to test the values over multiple runs, etc. 
 # 
-# We could implement methods to adjust these rates based on things other than time, for example based on the difference between the current and new values in the Qtable for the state, but my initial attempts haven't been succesful in finding a model that learns as fast as the current implementations.
+# We could also implement methods to adjust these rates based on factors other than time, for example based on the difference between the current and new values in the Qtable for the state, but my initial attempts haven't been succesful in finding a model that learns as fast as the current implementations.
 # 
 # I have also changed the Q-table initialization to use random values from -1 to 1. This is intended to assist early phase learning of each state taking random actions, increasing state exploration.
 # 
-# It should be noted that the change that most affects success from the initial algorithm was to re-order the selection of available actions, such that forward is preferred over inaction. This led to an agent that was succesful in reaching it's goal at least as often as any other enhancement, usually reaching the goal more than 96% of the time. This may be a quirk of the environment, and not something that is true generally, especialy when the learning is moved to environment's that may have a larger state space, or with a more complex reward system.
+# It should be noted that the change that most affects success from the initial algorithm was to re-order the selection of available actions, such that forward is preferred over inaction. This led to an agent that was succesful in reaching it's goal at least as often as any other enhancement, usually reaching the goal more than 96% of the time. This may be a quirk of the environment, and not something that is true generally, especialy when the learning is moved to environment's that may have a larger state space, or with a more complex reward system. We do see that the final model has a higher average reward per run.
 # 
 
 # ---------------------------------------------------------------
 
-# In[78]:
+# In[14]:
 
 if __name__ == '__main__':
     print  "running...."
@@ -611,6 +621,6 @@ if __name__ == '__main__':
 
 
 # ## Conclusion
-# We can see that the fully implemented agent has learned a set of rules governing road travel, including stop light behavior, and how to follow the route planner. Our agent quickly approaches this optimal policy state, with the caveat that it retains the ability(via epsilon settings) to learn changes. Since we have concentrated on 100 run trials,we will not see all possible states, and so can't reach a fully optimized policy. The possibility exists to save the policy and continue to learn, eventually having an entry for each possible state, and minimizing the mistakes.
+# We can see that the fully implemented agent has learned a set of rules governing road travel, including stop light behavior, and how to follow the route planner. Our agent quickly approaches this optimal policy state, with the caveat that it retains the ability(via epsilon settings) to learn changes. Since we have concentrated on 100 run trials,we will not see all possible states, and so can't reach a fully optimized policy. The possibility exists to save the policy and continue to learn, eventually having an entry for each possible state, and minimizing the mistakes. Until then, our agent is able to perform in a very acceptable manner for this environment.
 
 # #EOF
