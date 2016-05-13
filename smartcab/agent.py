@@ -464,7 +464,7 @@ if console == False:
     print "Basic Q Learning Agent done"
 
 
-# In[30]:
+# In[56]:
 
 class BasicLearningAgent2(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -488,7 +488,7 @@ if console == False:
     # run the trials for the Basic Q learning agent
     basicLearn2Features,BL2deadlines,BL2rewards=run(agentType=BasicLearningAgent2,trials=100, deadline=True) 
     #statsFromRun(basicLearn2Features,BL2deadlines,BL2rewards)
-    scorePerRun(BLdeadlines,BLrewards)
+    scorePerRun(BL2deadlines,BL2rewards)
     print "Basic Q Learning Agent2 done"
 
 
@@ -509,7 +509,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[31]:
+# In[38]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -553,7 +553,7 @@ class LearningAgent(BasicLearningAgent):
         # as time goes by we should give more weight to our knowledge and grow gamma.
         rate=16 #-> higher is slower
         self.gamma=self.gamma+(.45-self.gamma)/rate
-        
+                
         #Set the new value in the Q table based on the Q-learning method
         self.Qtable[self.state][self.availableAction.index(action)]=reward+self.gamma*max(self.Qtable[new_state])
                                                                                           
@@ -589,14 +589,17 @@ print "LearningAgent Ready"
 # ## Enhance the driving agent - Discussion
 # We immediatly see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that the agent learns to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score, the majority of times. Even at the end of the run, we do still seem odd behaviors, as the agent tries new methods according to epsilon, or encounters new states.
 # 
-# In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is now initialized with random values, and we want to explore the available states, and record their affects. The opposite is true for gamma. In it's case, we would like to highly discount any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, but we would likely be able to optimize these numbers further by implementing a gridsearch type algorithm to test the values over multiple runs, etc.
-# We could also implement methods to adjust these rates based on things other than time, for example based on the difference between the current and new values in the Qtable for the state.
+# In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is now initialized with random values, and we want to explore the available states, and record their affects. The opposite is true for gamma. In it's case, we would like to highly discount any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, but we would likely be able to optimize these numbers further by implementing a gridsearch type algorithm to test the values over multiple runs, etc. 
+# 
+# We could implement methods to adjust these rates based on things other than time, for example based on the difference between the current and new values in the Qtable for the state, but my initial attempts haven't been succesful in finding a model that learns as fast as the current implementations.
+# 
+# I have also changed the Q-table initialization to use random values from -1 to 1. This is intended to assist early phase learning of each state taking random actions, increasing state exploration.
 # 
 # Note that in this version of the agent, the order of the availableAction doesn't matter. The agent is able to find a best action regardless of the order of the actions.
 
 # ---------------------------------------------------------------
 
-# In[32]:
+# In[39]:
 
 if __name__ == '__main__':
     print  "running...."
