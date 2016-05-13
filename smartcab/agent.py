@@ -3,7 +3,7 @@
 
 # # Teach a smartcab to drive
 # ## Project 4 for the Udacity Machine Learning Nanodegree
-# In this project, we will use Q-learning to train a smartcab to follow traffic rules and reach it's destination in a timely manor
+# In this project, we will use Q-learning to train a smartcab to follow traffic rules and reach it's destination in a timely manner
 #  
 # 
 # ## Setup
@@ -85,7 +85,7 @@ redirector.reset()
 print "Redirector ready"
 
 
-# In[39]:
+# In[3]:
 
 def run(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
@@ -112,7 +112,7 @@ def run(agentType,trials=10, gui=False, deadline=True, delay=0):
     if gui ==False:
         redirector.reset()    
         
-    print "Successfull runs = {}".format(a.goal)
+    print "Successful runs = {}".format(a.goal)
     print "----------------------------------------------------------"
     features= [] # the state at each turn in the run
     deadlines = [] # the deadline at each turn in the run
@@ -139,7 +139,7 @@ def run(agentType,trials=10, gui=False, deadline=True, delay=0):
 print "run ready"
 
 
-# In[40]:
+# In[12]:
 
 # display the feedback from the prior runs graphically
 def statsFromRun(feat,DL,RW):
@@ -165,12 +165,15 @@ def statsFromRun(feat,DL,RW):
     right.plot(kind='bar', title="right",ax=axes[1,2])
     axes[1,1].plot(DL,label="Deadlines")
     axes[1,1].plot(RW,label="Rewards")
+    
+    axes[1,1].plot([(np.mean(DL)+np.mean(RW))/2 for i in range(len(DL))],label="Avg {:2.2f}".format((np.mean(DL)+np.mean(RW))/2))
     #axes[1,1].xlabel('Run')
     axes[1,1].legend(loc=2)
     #axes[1,1].title("Deadline and Rewards per Run")
     
     plt.show()
     plt.close()
+    
     
 def scorePerRun(DL,RW):
     plt.figure(figsize=(14,6))
@@ -199,7 +202,7 @@ print "Graph display ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[41]:
+# In[5]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -261,14 +264,14 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[42]:
+# In[6]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
     print "RandomAgent, no deadlines, Done"
 
 
-# In[43]:
+# In[7]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
@@ -288,7 +291,7 @@ if console == False:
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[44]:
+# In[8]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -337,7 +340,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[45]:
+# In[13]:
 
 if console == False:
     # run the trials for the state
@@ -370,7 +373,7 @@ if console == False:
 # 
 # 
 
-# In[46]:
+# In[26]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -380,7 +383,7 @@ class BasicLearningAgent(RandomAgent):
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
-        self.availableAction = ['forward', 'left', 'right',None]   
+        self.availableAction = [None,'forward', 'left', 'right']   
         self.next_waypoint   = None
         self.goal=0
         self.steps=0
@@ -443,7 +446,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[47]:
+# In[30]:
 
 if console == False:
     # run the trials for the Basic Q learning agent
@@ -453,11 +456,40 @@ if console == False:
     print "Basic Q Learning Agent done"
 
 
+# In[31]:
+
+class BasicLearningAgent2(BasicLearningAgent):
+    """An agent that learns to drive in the smartcab world."""
+
+    def __init__(self, env):
+        super(BasicLearningAgent2, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None
+        self.color = 'red'  # override color
+        self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
+        # TODO: Initialize any additional variables here
+        self.availableAction = ['forward', 'left', 'right',None]   
+        self.next_waypoint   = None
+        self.goal=0
+        self.steps=0
+        self.features=[]
+        self.Qtable={}
+        self.epsilon=0.0
+        self.gamma=0.0
+        self.total_reward=[0]
+        
+if console == False:
+    # run the trials for the Basic Q learning agent
+    basicLearn2Features,BL2deadlines,BL2rewards=run(agentType=BasicLearningAgent2,trials=100, deadline=True) 
+    statsFromRun(basicLearn2Features,BL2deadlines,BL2rewards)
+    #scorePerRun(BLdeadlines,BLrewards)
+    print "Basic Q Learning Agent2 done"
+
+
 # ### Implement Q-Learning - Discussion
 # With a basic Qlearning algorithm, we note that the agent quickly learns a set of rules that allow the agent to move toward the objective. Generarlly speaking the agent, is moving to the destination, but does not always make optimal choices.  We see the agent begin to obey some traffic rules and make moves toward it's destination. We can see that now the reward in each run is generally positive.
 # 
 # We don't see a large continued increase in the agent speed toward the destination after the initial runs. We still see strange behavior such as repeated right turns back to the original destination, or staying in a no action state for extended periods, without much change in pattern through the run. With Epsilon set to 0, we don't see the agent select new behaviors, and with Gamma at 0 we don't consider our future state.
 # 
+# One interesting note is the difference made by re-ordering the available action list. Placing the 'None' value at the end plays to the bias of the 'max' function, in which if all values are the same, will select the first match. Since we initialize the list to zero, if 'None' is first in the list, the agent tends to take no action, and never reaches the goal. by reordering the list, we bias the agent toward action, allowing the agent to perform significantly better. 
 
 # ---------------------------------------------------------------
 
@@ -469,7 +501,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[48]:
+# In[37]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -511,7 +543,7 @@ class LearningAgent(BasicLearningAgent):
         
         #initially we should have a very low gamma, as we can't trust our knowledge.
         # as time goes by we should give more weight to our knowledge and grow gamma.
-        rate=32
+        rate=16
         self.gamma=self.gamma+(.45-self.gamma)/rate
         
         #Set the new value in the Q table based on the Q-learning method
@@ -549,12 +581,14 @@ print "LearningAgent Ready"
 # ## Enhance the driving agent - Discussion
 # We immediatly see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that the agent learns to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score, the majority of times. Even at the end of the run, we do still seem odd behaviors, as the agent tries new methods according to epsilon, or encounters new states.
 # 
-# In addition to tuning the final epsilon and gamma, I have a added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is initialized with zero's, and we want to explore the available states, and record their affects. The opposite is true for gamma. In it's case, we would like to ignore any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, but we would likely be able to optimize these numbers further by implementing a gridsearch type algorithm to test the values over multiple runs, etc.
+# In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is initialized with zero's, and we want to explore the available states, and record their affects. The opposite is true for gamma. In it's case, we would like to ignore any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, but we would likely be able to optimize these numbers further by implementing a gridsearch type algorithm to test the values over multiple runs, etc.
 # We could also implement methods to adjust these rates based on things other than time, for example based on the difference between the current and new values.
+# 
+# Note that in this version of the agent, the order of the availableAction doesn't matter. The agent is able to find a best action regardless of the order of the actions.
 
 # ---------------------------------------------------------------
 
-# In[49]:
+# In[36]:
 
 if __name__ == '__main__':
     print  "running...."
@@ -564,9 +598,8 @@ if __name__ == '__main__':
     print "\nQ Learning Agent done"
 
 
+# ## Conclusion
+# We can see that the fully implemented agent has learned a set of rules governing road travel, including stop light behavior, and how to follow the route planner. Our agent quickly approaches this optimal policy state, with the caveat that it retains the ability(via epsilon settings) to learn changes. Since we have concentrated on 100 run trials,we will not see all possible states, and so can't reach a fully optimized policy. The possibility exists to save the policy and continue to learn, eventually having an entry for each possible state, and minimizing the mistakes.
+# 
+
 # #EOF
-
-# In[ ]:
-
-
-
