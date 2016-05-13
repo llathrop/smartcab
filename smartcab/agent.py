@@ -139,7 +139,7 @@ def run(agentType,trials=10, gui=False, deadline=True, delay=0):
 print "run ready"
 
 
-# In[12]:
+# In[49]:
 
 # display the feedback from the prior runs graphically
 def statsFromRun(feat,DL,RW):
@@ -165,8 +165,8 @@ def statsFromRun(feat,DL,RW):
     right.plot(kind='bar', title="right",ax=axes[1,2])
     axes[1,1].plot(DL,label="Deadlines")
     axes[1,1].plot(RW,label="Rewards")
-    
-    axes[1,1].plot([(np.mean(DL)+np.mean(RW))/2 for i in range(len(DL))],label="Avg {:2.2f}".format((np.mean(DL)+np.mean(RW))/2))
+    avgDist=3
+    axes[1,1].plot([(np.mean(DL[i-avgDist:i+avgDist])+np.mean(RW[i-3:i+3]))/2 for i in range(len(DL))],label="Avg {:2.2f}".format((np.mean(DL)+np.mean(RW))/2))
     #axes[1,1].xlabel('Run')
     axes[1,1].legend(loc=2)
     #axes[1,1].title("Deadline and Rewards per Run")
@@ -202,7 +202,7 @@ print "Graph display ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[5]:
+# In[50]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -264,14 +264,14 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[6]:
+# In[51]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
     print "RandomAgent, no deadlines, Done"
 
 
-# In[7]:
+# In[52]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
@@ -291,7 +291,7 @@ if console == False:
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[8]:
+# In[53]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -340,7 +340,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[13]:
+# In[54]:
 
 if console == False:
     # run the trials for the state
@@ -373,7 +373,7 @@ if console == False:
 # 
 # 
 
-# In[26]:
+# In[55]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -446,7 +446,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[30]:
+# In[56]:
 
 if console == False:
     # run the trials for the Basic Q learning agent
@@ -456,7 +456,7 @@ if console == False:
     print "Basic Q Learning Agent done"
 
 
-# In[31]:
+# In[57]:
 
 class BasicLearningAgent2(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -501,7 +501,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[37]:
+# In[58]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -511,7 +511,7 @@ class LearningAgent(BasicLearningAgent):
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
-        self.availableAction = [ 'forward', 'left', 'right',None]   
+        self.availableAction = [ None,'forward', 'left', 'right']   
         self.next_waypoint   = None
         self.goal=0
         self.steps=0
@@ -588,7 +588,7 @@ print "LearningAgent Ready"
 
 # ---------------------------------------------------------------
 
-# In[36]:
+# In[59]:
 
 if __name__ == '__main__':
     print  "running...."
