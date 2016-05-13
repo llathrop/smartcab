@@ -13,7 +13,7 @@
 # 
 # 
 
-# In[89]:
+# In[1]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -50,7 +50,7 @@ from simulator import Simulator
 print "Environment ready"
 
 
-# In[90]:
+# In[2]:
 
 # Several of the provided modules output unuseful information during each run. 
 #  Here we provide a way to supress that output as needed. 
@@ -85,7 +85,7 @@ redirector.reset()
 print "Redirector ready"
 
 
-# In[91]:
+# In[3]:
 
 def run(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
@@ -139,7 +139,7 @@ def run(agentType,trials=10, gui=False, deadline=True, delay=0):
 print "run ready"
 
 
-# In[92]:
+# In[4]:
 
 # display the feedback from the prior runs graphically
 def statsFromRun(feat,DL,RW):
@@ -210,7 +210,7 @@ print "Graph display ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[93]:
+# In[5]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -272,14 +272,14 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[94]:
+# In[6]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline 
     print "RandomAgent, no deadlines, Done"
 
 
-# In[95]:
+# In[7]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
@@ -299,7 +299,7 @@ if console == False:
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[96]:
+# In[8]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -348,7 +348,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[97]:
+# In[28]:
 
 if console == False:
     # run the trials for the state
@@ -381,7 +381,7 @@ if console == False:
 # 
 # 
 
-# In[98]:
+# In[10]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -454,17 +454,17 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[99]:
+# In[33]:
 
 if console == False:
     # run the trials for the Basic Q learning agent
     basicLearnFeatures,BLdeadlines,BLrewards=run(agentType=BasicLearningAgent,trials=100, deadline=True) 
-    statsFromRun(basicLearnFeatures,BLdeadlines,BLrewards)
-    #scorePerRun(BLdeadlines,BLrewards)
+    #statsFromRun(basicLearnFeatures,BLdeadlines,BLrewards)
+    scorePerRun(BLdeadlines,BLrewards)
     print "Basic Q Learning Agent done"
 
 
-# In[100]:
+# In[30]:
 
 class BasicLearningAgent2(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -487,8 +487,8 @@ class BasicLearningAgent2(BasicLearningAgent):
 if console == False:
     # run the trials for the Basic Q learning agent
     basicLearn2Features,BL2deadlines,BL2rewards=run(agentType=BasicLearningAgent2,trials=100, deadline=True) 
-    statsFromRun(basicLearn2Features,BL2deadlines,BL2rewards)
-    #scorePerRun(BLdeadlines,BLrewards)
+    #statsFromRun(basicLearn2Features,BL2deadlines,BL2rewards)
+    scorePerRun(BLdeadlines,BLrewards)
     print "Basic Q Learning Agent2 done"
 
 
@@ -509,7 +509,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[101]:
+# In[31]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -520,7 +520,7 @@ class LearningAgent(BasicLearningAgent):
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
         self.availableAction = [ None,'forward', 'left', 'right']   
-        self.next_waypoint   = None
+        self.next_waypoint = None
         self.goal=0
         self.steps=0
         self.features=[]
@@ -543,15 +543,15 @@ class LearningAgent(BasicLearningAgent):
     def update_q_table(self,action,reward):
         # if we haven't seen this state yet, initialize it
         if not self.Qtable.has_key(self.state):
-            self.Qtable[self.state]=[0,0,0,0]
+            self.Qtable[self.state]=[random.uniform(-1,1),random.uniform(-1,1),random.uniform(-1,1),random.uniform(-1,1)]
         #we took an action, so can now observe our new state.
         new_state=self.get_state()
         if not self.Qtable.has_key(new_state):
-            self.Qtable[new_state]=[random.random(),random.random(),random.random(),random.random()]
+            self.Qtable[new_state]=[random.uniform(-1,1),random.uniform(-1,1),random.uniform(-1,1),random.uniform(-1,1)]
         
         #initially we should have a very low gamma, as we can't trust our knowledge.
         # as time goes by we should give more weight to our knowledge and grow gamma.
-        rate=16
+        rate=16 #-> higher is slower
         self.gamma=self.gamma+(.45-self.gamma)/rate
         
         #Set the new value in the Q table based on the Q-learning method
@@ -589,20 +589,20 @@ print "LearningAgent Ready"
 # ## Enhance the driving agent - Discussion
 # We immediatly see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that the agent learns to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score, the majority of times. Even at the end of the run, we do still seem odd behaviors, as the agent tries new methods according to epsilon, or encounters new states.
 # 
-# In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is initialized with zero's, and we want to explore the available states, and record their affects. The opposite is true for gamma. In it's case, we would like to ignore any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, but we would likely be able to optimize these numbers further by implementing a gridsearch type algorithm to test the values over multiple runs, etc.
-# We could also implement methods to adjust these rates based on things other than time, for example based on the difference between the current and new values.
+# In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is now initialized with random values, and we want to explore the available states, and record their affects. The opposite is true for gamma. In it's case, we would like to highly discount any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, but we would likely be able to optimize these numbers further by implementing a gridsearch type algorithm to test the values over multiple runs, etc.
+# We could also implement methods to adjust these rates based on things other than time, for example based on the difference between the current and new values in the Qtable for the state.
 # 
 # Note that in this version of the agent, the order of the availableAction doesn't matter. The agent is able to find a best action regardless of the order of the actions.
 
 # ---------------------------------------------------------------
 
-# In[102]:
+# In[32]:
 
 if __name__ == '__main__':
     print  "running...."
     QLearnFeatures,QLdeadlines,QLrewards=run(agentType=LearningAgent,trials=100, deadline=True,gui=console, delay=.1)
-    statsFromRun(QLearnFeatures,QLdeadlines,QLrewards)
-    #scorePerRun(QLdeadlines,QLrewards)
+    #statsFromRun(QLearnFeatures,QLdeadlines,QLrewards)
+    scorePerRun(QLdeadlines,QLrewards)
     print "\nQ Learning Agent done"
 
 
