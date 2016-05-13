@@ -464,7 +464,7 @@ if console == False:
     print "Basic Q Learning Agent done"
 
 
-# In[56]:
+# In[64]:
 
 class BasicLearningAgent2(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -509,7 +509,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[38]:
+# In[72]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -552,7 +552,7 @@ class LearningAgent(BasicLearningAgent):
         #initially we should have a very low gamma, as we can't trust our knowledge.
         # as time goes by we should give more weight to our knowledge and grow gamma.
         rate=16 #-> higher is slower
-        self.gamma=self.gamma+(.45-self.gamma)/rate
+        self.gamma=self.gamma+(.35-self.gamma)/rate
                 
         #Set the new value in the Q table based on the Q-learning method
         self.Qtable[self.state][self.availableAction.index(action)]=reward+self.gamma*max(self.Qtable[new_state])
@@ -587,7 +587,7 @@ print "LearningAgent Ready"
 
 
 # ## Enhance the driving agent - Discussion
-# We immediatly see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that the agent learns to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score, the majority of times. Even at the end of the run, we do still seem odd behaviors, as the agent tries new methods according to epsilon, or encounters new states.
+# We immediatly see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that the agent learns to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score, the majority of times. This is despite biasing the action list to 'None', as in the previous example. Even at the end of the run, we do still see odd behaviors, as the agent tries new methods according to epsilon, or encounters new states.
 # 
 # In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is now initialized with random values, and we want to explore the available states, and record their affects. The opposite is true for gamma. In it's case, we would like to highly discount any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, but we would likely be able to optimize these numbers further by implementing a gridsearch type algorithm to test the values over multiple runs, etc. 
 # 
@@ -595,11 +595,12 @@ print "LearningAgent Ready"
 # 
 # I have also changed the Q-table initialization to use random values from -1 to 1. This is intended to assist early phase learning of each state taking random actions, increasing state exploration.
 # 
-# Note that in this version of the agent, the order of the availableAction doesn't matter. The agent is able to find a best action regardless of the order of the actions.
+# It should be noted that the change that most affects success from the initial algorithm was to re-order the selection of available actions, such that forward is preferred over inaction. This led to an agent that was succesful in reaching it's goal at least as often as any other enhancement, usually reaching the goal more than 96% of the time. This may be a quirk of the environment, and not something that is true generally, especialy when the learning is moved to environment's that may have a larger state space, or with a more complex reward system.
+# 
 
 # ---------------------------------------------------------------
 
-# In[39]:
+# In[78]:
 
 if __name__ == '__main__':
     print  "running...."
@@ -611,6 +612,5 @@ if __name__ == '__main__':
 
 # ## Conclusion
 # We can see that the fully implemented agent has learned a set of rules governing road travel, including stop light behavior, and how to follow the route planner. Our agent quickly approaches this optimal policy state, with the caveat that it retains the ability(via epsilon settings) to learn changes. Since we have concentrated on 100 run trials,we will not see all possible states, and so can't reach a fully optimized policy. The possibility exists to save the policy and continue to learn, eventually having an entry for each possible state, and minimizing the mistakes.
-# 
 
 # #EOF
