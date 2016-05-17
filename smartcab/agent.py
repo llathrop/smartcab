@@ -15,7 +15,7 @@
 # 
 # 
 
-# In[11]:
+# In[1]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -52,7 +52,7 @@ from simulator import Simulator
 print "Environment ready"
 
 
-# In[12]:
+# In[2]:
 
 # Several of the provided modules output unuseful information during each run. 
 #  Here we provide a way to supress that output as needed. 
@@ -80,7 +80,7 @@ redirector=outputRedirect()
 print "Redirector ready"
 
 
-# In[13]:
+# In[3]:
 
 def run(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
@@ -134,7 +134,7 @@ def run(agentType,trials=10, gui=False, deadline=True, delay=0):
 print "run ready"
 
 
-# In[14]:
+# In[4]:
 
 # display the feedback from the prior runs graphically
 def statsFromRun(feat,DL,RW):
@@ -215,7 +215,7 @@ print "Graph display ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[15]:
+# In[5]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -277,14 +277,14 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[16]:
+# In[6]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline
     print "RandomAgent, no deadlines, Done"
 
 
-# In[17]:
+# In[7]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
@@ -304,7 +304,7 @@ if console == False:
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[18]:
+# In[8]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -353,7 +353,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[19]:
+# In[9]:
 
 if console == False:
     # run the trials for the state
@@ -386,7 +386,7 @@ if console == False:
 # 
 # 
 
-# In[20]:
+# In[10]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -432,12 +432,11 @@ class BasicLearningAgent(RandomAgent):
         #Q[s,a] ←Q[s,a] + α(r+ γ*maxQ[s',a'] - Q[s,a])
                            
         self.Qtable[self.state][self.availableAction.index(action)]=(
-                        self.Qtable[self.state][self.availableAction.index(action)]+
-                        self.alpha*
-                            (reward+self.gamma*max(self.Qtable[new_state])-
-                             self.Qtable[self.state][self.availableAction.index(action)])
-                        ) 
-                                                                                          
+                        self.Qtable[self.state][self.availableAction.index(action)]+ # Q[s,a] +
+                        self.alpha*   # α
+                            (reward+self.gamma*max(self.Qtable[new_state])-   # r+maxQ[s',a'] -
+                             self.Qtable[self.state][self.availableAction.index(action)]) # Q[s,a]
+                        )                                                                                            
         
     def update(self, t):
                                                                                           
@@ -468,7 +467,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[21]:
+# In[11]:
 
 if console == False:
     # run the trials for the Basic Q learning agent
@@ -478,7 +477,7 @@ if console == False:
     print "Basic Q Learning Agent done"
 
 
-# In[22]:
+# In[12]:
 
 class BasicLearningAgent2(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -523,7 +522,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[23]:
+# In[86]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -540,14 +539,16 @@ class LearningAgent(BasicLearningAgent):
         self.features=[]
         self.Qtable={}
         self.epsilon=0.95
+        self.epsilon_end=0.125
         self.gamma=0.05
+        self.gamma_end=0.125
         self.total_reward=[0] 
-        self.alpha = .2 
+        self.alpha = 0.374625 
     
     def set_action(self):
         #initially we want to prefer a random action, but later we would like to trust our experience.
         exploration_rate=32 #rate at which we approach final epsilon-> higher is slower
-        self.epsilon = self.epsilon-(self.epsilon-.05)/exploration_rate
+        self.epsilon = self.epsilon-(self.epsilon-self.epsilon_end)/exploration_rate
         
         action = self.availableAction[random.randint(0,3)]    #take a random action
         # 1-epsilon % of time, refer to the q-table for an action. take the max value from the available actions
@@ -567,16 +568,16 @@ class LearningAgent(BasicLearningAgent):
         #initially we should have a very low gamma, as we can't trust our knowledge.
         # as time goes by we should give more weight to our knowledge and grow gamma.
         rate=16 #-> higher is slower
-        self.gamma=self.gamma+(.35-self.gamma)/rate
+        self.gamma=self.gamma+(self.gamma_end-self.gamma)/rate
                 
         #Set the new value in the Q table based on the Q-learning method
         #Q[s,a] ←Q[s,a] + α(r+ γ*maxQ[s',a'] - Q[s,a])
                            
         self.Qtable[self.state][self.availableAction.index(action)]=(
-                        self.Qtable[self.state][self.availableAction.index(action)]+
-                        self.alpha*
-                            (reward+self.gamma*max(self.Qtable[new_state])-
-                             self.Qtable[self.state][self.availableAction.index(action)])
+                        self.Qtable[self.state][self.availableAction.index(action)]+ # Q[s,a] +
+                        self.alpha*   # α
+                            (reward+self.gamma*max(self.Qtable[new_state])-   # r+maxQ[s',a'] -
+                             self.Qtable[self.state][self.availableAction.index(action)]) # Q[s,a]
                         )                                  
                                                                                           
     def update(self, t):
@@ -608,11 +609,69 @@ class LearningAgent(BasicLearningAgent):
 print "LearningAgent Ready"
 
 
+# In[94]:
+
+def runGrid(agentType,trials=10, gui=False, deadline=True, delay=0):
+    """Run the agent for a finite number of trials."""
+
+    # Set up environment and agent
+    
+    if gui ==False:
+        redirector=outputRedirect()
+        redirector.suppress_output()
+        delay=0 
+
+    # NOTE: To speed up simulation, reduce update_delay and/or set display=False
+    run = 16
+    values=16
+    iterations=10
+    all_successcounts=[]
+    for r in range(run):       
+        for v in range(values):
+            for s in range(values):
+                # Now simulate it
+                success_counts=[]
+                for i in range(iterations):                
+                    e = Environment()  # create environment (also adds some dummy traffic)
+                    a = e.create_agent(agentType)  # create agent
+                    e.set_primary_agent(a, enforce_deadline=deadline)  # specify agent to track
+                   
+                    #agent parameter to evaluate
+                    a.alpha=(1./run)*(r+1)
+                    a.gamma_end=(1./values)*(v+1)
+                    a.epsilon_end=(1./values)*(s+1)
+                    
+                    sim = Simulator(e, update_delay=delay, display=gui)  # create simulator (uses pygame when display=True, if available)
+                    sim.run(n_trials=trials)  # run for a specified number of trials      
+                    success_counts.append(a.goal)
+
+                all_successcounts.append({'success_counts_avg':np.mean(success_counts), 'alpha':a.alpha,'gamma':a.gamma,'epsilon' :a.epsilon_end})
+
+    if gui ==False:
+        redirector.reset()  
+    print "best success:"
+    #print all_successcounts
+    all_success_data=pd.DataFrame(all_successcounts)
+    #display(all_success_data)
+    display(all_success_data[all_success_data.success_counts_avg==max(all_success_data.success_counts_avg)])
+    
+print "run ready"
+
+
+# In[95]:
+
+if console == False:
+    print "run some tests searching for a best value."
+    runGrid(agentType=LearningAgent,trials=100, deadline=True,gui=console, delay=.1)
+
+
 # ## Enhance the driving agent - Discussion
 # We immediately  see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that the agent learns to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score, the majority of times. This is despite biasing the action list to 'None', as in the previous example. Even at the end of the run, we do still see odd behaviors, as the agent tries new methods according to epsilon, or encounters new states.
 # 
-# In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is now initialized with random values, and we want to explore the available states, and record their effects. The opposite is true for gamma. In it's case, we would like to highly discount any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, but we would likely be able to optimize these numbers further by implementing a grid search type algorithm to test the values over multiple runs, etc. 
+# In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is now initialized with random values, and we want to explore the available states, and record their effects. The opposite is true for gamma. In it's case, we would like to highly discount any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, and optimized these numbers further by implementing a grid search type algorithm to test the values over multiple runs, etc. These were found to be:
 # 
+# alpha = 0.374625	   epsilon = 0.125	gamma= 0.125	success_counts_avg = 91.92
+# 		
 # We could also implement methods to adjust these rates based on factors other than time, for example based on the difference between the current and new values in the Q table for the state, but my initial attempts haven't been successful in finding a model that learns as fast as the current implementations.
 # 
 # I have also changed the Q-table initialization to use random values from -1 to 1. This is intended to assist early phase learning of each state taking random actions, increasing state exploration.
@@ -622,17 +681,18 @@ print "LearningAgent Ready"
 
 # ---------------------------------------------------------------
 
-# In[24]:
+# In[96]:
 
 if __name__ == '__main__':
     print  "running...."
-    QLearnFeatures,QLdeadlines,QLrewards=run(agentType=LearningAgent,trials=100, deadline=True,gui=console, delay=.1)
+
+    QLearnFeatures,QLdeadlines,QLrewards=run(agentType=LearningAgent,trials=500, deadline=True,gui=console, delay=.1)
     #statsFromRun(QLearnFeatures,QLdeadlines,QLrewards)
     scorePerRun(QLdeadlines,QLrewards)
     print "\nQ Learning Agent done"
 
 
 # ## Conclusion
-# We can see that the fully implemented agent has learned a set of rules governing road travel, including stop light behavior, and how to follow the route planner. Our agent quickly approaches this optimal policy state, with the caveat that it retains the ability(via epsilon settings) to learn changes. Since we have concentrated on 100 run trials,we will not see all possible states, and so can't reach a fully optimized policy. The possibility exists to save the policy and continue to learn, eventually having an entry for each possible state, and minimizing the mistakes. Until then, our agent is able to perform in a very acceptable manner for this environment.
+# We can see that the fully implemented agent has learned a set of rules governing road travel, including stop light behavior, and how to follow the route planner. Our agent quickly approaches an optimal policy state, with the caveat that it retains the ability(via epsilon settings) to learn changes. Since we have concentrated on 100 run trials,we will not see all possible states, and so can't reach a fully optimized policy, wherein the agent would follow all rules perfectly and always take the shortest path that those rules allow. We currently see behaviors, such as circling around a block, that maximize the total reward, but don't serve any other purpose. The possibility exists to save the policy and continue to learn, eventually having an entry for each possible state, and minimizing the mistakes. Until then, our agent is able to perform in a very acceptable manner for this environment.
 
 # #EOF
