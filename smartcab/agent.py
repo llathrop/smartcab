@@ -2,18 +2,17 @@
 # coding: utf-8
 
 # # Teach a smartcab to drive
+# 
+
 # ## Project 4 for the Udacity Machine Learning Nanodegree
 #  In this project, we will use Q-learning to train a smartcab to follow traffic rules and reach it's destination in a timely manner.
 #  
-#  All code was developed in the accompanying Jupiter notebook, and exported directly to the agent.py, located in the smartcab directory. The project report may be viewed with or without code included inline, by choosing the appropriate pdf, or directly from the ipynb file as a notebook.
-#  
-# 
-# ## Setup
+#  All code was developed in the accompanying Jupiter notebook, and exported directly to the agent.py, located in the smartcab directory. The project report may be viewed with or without code included inline, by choosing the appropriate pdf, or directly from the ipynb file as a notebook. 
+
+# ## Setup 
 # 
 # You need Python 2.7 and pygame for this project: https://www.pygame.org/wiki/GettingStarted
 # For help with installation, it is best to reach out to the pygame community [help page, Google group, reddit].
-# 
-# 
 
 # In[1]:
 
@@ -673,13 +672,14 @@ if console == False:
     display(successCounts[successCounts.success_counts_avg==max(successCounts.success_counts_avg)])
 
 
-# In[55]:
+# In[75]:
 
-print "data sample:"
-display(successCounts.head(5))
-print "data description:"
-display(successCounts.describe())
-#display(successCounts[successCounts.success_counts_avg==max(successCounts.success_counts_avg)])
+if console == False:   
+    print "data sample:"
+    display(successCounts.head(5))
+    print "data description:"
+    display(successCounts.describe())
+    #display(successCounts[successCounts.success_counts_avg==max(successCounts.success_counts_avg)])
 
 
 # ## Enhance the driving agent - Discussion
