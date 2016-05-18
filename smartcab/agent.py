@@ -15,7 +15,7 @@
 # 
 # 
 
-# In[1]:
+# In[21]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -52,7 +52,7 @@ from simulator import Simulator
 print "Environment ready"
 
 
-# In[2]:
+# In[22]:
 
 # Several of the provided modules output unuseful information during each run. 
 #  Here we provide a way to supress that output as needed. 
@@ -80,7 +80,7 @@ redirector=outputRedirect()
 print "Redirector ready"
 
 
-# In[3]:
+# In[23]:
 
 def run(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
@@ -134,7 +134,7 @@ def run(agentType,trials=10, gui=False, deadline=True, delay=0):
 print "run ready"
 
 
-# In[4]:
+# In[24]:
 
 # display the feedback from the prior runs graphically
 def statsFromRun(feat,DL,RW):
@@ -215,7 +215,7 @@ print "Graph display ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[5]:
+# In[25]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -277,14 +277,14 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[6]:
+# In[26]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline
     print "RandomAgent, no deadlines, Done"
 
 
-# In[7]:
+# In[27]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
@@ -304,7 +304,7 @@ if console == False:
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[8]:
+# In[28]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -353,7 +353,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[9]:
+# In[29]:
 
 if console == False:
     # run the trials for the state
@@ -386,7 +386,7 @@ if console == False:
 # 
 # 
 
-# In[10]:
+# In[30]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -467,7 +467,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[11]:
+# In[31]:
 
 if console == False:
     # run the trials for the Basic Q learning agent
@@ -477,7 +477,7 @@ if console == False:
     print "Basic Q Learning Agent done"
 
 
-# In[12]:
+# In[33]:
 
 class BasicLearningAgent2(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -522,7 +522,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[86]:
+# In[34]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -609,7 +609,7 @@ class LearningAgent(BasicLearningAgent):
 print "LearningAgent Ready"
 
 
-# In[94]:
+# In[39]:
 
 def runGrid(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
@@ -658,7 +658,7 @@ def runGrid(agentType,trials=10, gui=False, deadline=True, delay=0):
 print "run ready"
 
 
-# In[95]:
+# In[ ]:
 
 if console == False:
     print "run some tests searching for a best value."
@@ -668,7 +668,7 @@ if console == False:
 # ## Enhance the driving agent - Discussion
 # We immediately  see the agent begin learning when we begin using epsilon to explore new states. The addition of gamma provides many of the same benefits, and we see that the agent learns to reach the destination as quickly as the first or second run. Following this, the agent will quickly begin to reach it's destination well before the deadline, with a positive score, the majority of times. This is despite biasing the action list to 'None', as in the previous example. Even at the end of the run, we do still see odd behaviors, as the agent tries new methods according to epsilon, or encounters new states.
 # 
-# In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is now initialized with random values, and we want to explore the available states, and record their effects. The opposite is true for gamma. In it's case, we would like to highly discount any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, and optimized these numbers further by implementing a grid search type algorithm to test the values over multiple runs, etc. These were found to be:
+# In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is now initialized with random values, and we want to explore the available states, and record their effects. The opposite is true for gamma. In it's case, we would like to highly discount any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, and optimized these numbers further by implementing a grid search to test the values over multiple runs, etc. These were found to be:
 # 
 # alpha = 0.374625	   epsilon = 0.125	gamma= 0.125	success_counts_avg = 91.92
 # 		
@@ -681,12 +681,12 @@ if console == False:
 
 # ---------------------------------------------------------------
 
-# In[96]:
+# In[38]:
 
 if __name__ == '__main__':
     print  "running...."
 
-    QLearnFeatures,QLdeadlines,QLrewards=run(agentType=LearningAgent,trials=500, deadline=True,gui=console, delay=.1)
+    QLearnFeatures,QLdeadlines,QLrewards=run(agentType=LearningAgent,trials=100, deadline=True,gui=console, delay=.1)
     #statsFromRun(QLearnFeatures,QLdeadlines,QLrewards)
     scorePerRun(QLdeadlines,QLrewards)
     print "\nQ Learning Agent done"
