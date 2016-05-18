@@ -385,7 +385,7 @@ if console == False:
 # 
 # 
 
-# In[65]:
+# In[10]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -466,7 +466,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[69]:
+# In[11]:
 
 if console == False:
     # run the trials for the Basic Q learning agent
@@ -476,7 +476,7 @@ if console == False:
     print "Basic Q Learning Agent done"
 
 
-# In[74]:
+# In[12]:
 
 class BasicLearningAgent2(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -521,7 +521,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[56]:
+# In[13]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -608,7 +608,7 @@ class LearningAgent(BasicLearningAgent):
 print "LearningAgent Ready"
 
 
-# In[53]:
+# In[27]:
 
 def runGrid(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
@@ -620,13 +620,12 @@ def runGrid(agentType,trials=10, gui=False, deadline=True, delay=0):
         redirector.suppress_output()
         delay=0 
 
-    # NOTE: To speed up simulation, reduce update_delay and/or set display=False 
-    # change these values with caution, as they significantly affect run time
-    run = 16
-    values=16
-    iterations=11
+    # change these values with caution, as they significantly affect run time. 
+    # A fast run will use values=3, iterations=3, and take 1.5 minutes or so with 30 trials
+    values=32
+    iterations=16
     all_successcounts=[]
-    for r in range(run):       
+    for r in range(values):       
         for v in range(values):
             for s in range(values):
                 # Now simulate it
@@ -639,14 +638,15 @@ def runGrid(agentType,trials=10, gui=False, deadline=True, delay=0):
                     e.set_primary_agent(a, enforce_deadline=deadline)  # specify agent to track
                    
                     #agent parameter to evaluate
-                    a.alpha=(1./run)*(r+1)
+                    a.alpha=(1./values)*(r+1)
                     a.gamma_end=(1./values)*(v+1)
                     a.epsilon_end=(1./values)*(s+1)
                     
-                    sim = Simulator(e, update_delay=delay, display=gui)  # create simulator (uses pygame when display=True, if available)
+                    sim = Simulator(e, update_delay=delay, display=gui)  # create simulator (uses pygame when display=True)
                     sim.run(n_trials=trials)  # run for a specified number of trials      
                     success_counts.append(a.goal)
                     timer.append(time()-starttime)
+                    
                 all_successcounts.append({
                         'time_avg':np.mean(timer),
                         'success_counts_avg':np.mean(success_counts), 
@@ -662,17 +662,19 @@ def runGrid(agentType,trials=10, gui=False, deadline=True, delay=0):
 print "runGrid ready"
 
 
-# In[54]:
+# In[28]:
 
 if console == False:
+    trials=30 # enough that the agent has enough time to learn to success at least a few times, in most cases.
     print "run some tests searching for a best value."
-    successCounts=runGrid(agentType=LearningAgent,trials=30, deadline=True,gui=console, delay=.1)
+    successCounts=runGrid(agentType=LearningAgent,trials=trials, deadline=True,gui=console, delay=.1)
+    print "run time:{} seconds".format(successCounts.time_avg.sum()*trials)
     print "best success:"
     #display(successCounts)
     display(successCounts[successCounts.success_counts_avg==max(successCounts.success_counts_avg)])
 
 
-# In[75]:
+# In[29]:
 
 if console == False:   
     print "data sample:"
@@ -698,7 +700,7 @@ if console == False:
 
 # ---------------------------------------------------------------
 
-# In[60]:
+# In[17]:
 
 if __name__ == '__main__':
     print  "running...."
