@@ -15,7 +15,7 @@
 # 
 # 
 
-# In[21]:
+# In[1]:
 
 # Import what we need, and setup the basic function to run from later.
 
@@ -52,7 +52,7 @@ from simulator import Simulator
 print "Environment ready"
 
 
-# In[22]:
+# In[2]:
 
 # Several of the provided modules output unuseful information during each run. 
 #  Here we provide a way to supress that output as needed. 
@@ -80,7 +80,7 @@ redirector=outputRedirect()
 print "Redirector ready"
 
 
-# In[23]:
+# In[3]:
 
 def run(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
@@ -134,7 +134,7 @@ def run(agentType,trials=10, gui=False, deadline=True, delay=0):
 print "run ready"
 
 
-# In[24]:
+# In[4]:
 
 # display the feedback from the prior runs graphically
 def statsFromRun(feat,DL,RW):
@@ -215,7 +215,7 @@ print "Graph display ready"
 # In your report, mention what you see in the agent’s behavior. Does it eventually make it to the target location?
 # 
 
-# In[25]:
+# In[5]:
 
 class RandomAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -277,14 +277,14 @@ class RandomAgent(Agent):
 print "RandomAgent ready"
 
 
-# In[26]:
+# In[6]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=False) #Example of a random run, with no deadline
     print "RandomAgent, no deadlines, Done"
 
 
-# In[27]:
+# In[7]:
 
 if console == False:
     features,deadlines, rewards=run(agentType=RandomAgent,trials=2, deadline=True) #Example of a random run
@@ -304,7 +304,7 @@ if console == False:
 # 
 # At each time step, process the inputs and update the current state. Run it again (and as often as you need) to observe how the reported state changes through the run.
 
-# In[28]:
+# In[8]:
 
 class StateAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -353,7 +353,7 @@ class StateAgent(RandomAgent):
 print "StateAgent Ready"
 
 
-# In[29]:
+# In[9]:
 
 if console == False:
     # run the trials for the state
@@ -386,7 +386,7 @@ if console == False:
 # 
 # 
 
-# In[30]:
+# In[65]:
 
 class BasicLearningAgent(RandomAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -467,7 +467,7 @@ class BasicLearningAgent(RandomAgent):
 print "BasicLearningAgent Ready"
 
 
-# In[31]:
+# In[69]:
 
 if console == False:
     # run the trials for the Basic Q learning agent
@@ -477,7 +477,7 @@ if console == False:
     print "Basic Q Learning Agent done"
 
 
-# In[33]:
+# In[74]:
 
 class BasicLearningAgent2(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -522,7 +522,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[34]:
+# In[56]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -539,11 +539,11 @@ class LearningAgent(BasicLearningAgent):
         self.features=[]
         self.Qtable={}
         self.epsilon=0.95
-        self.epsilon_end=0.125
+        self.epsilon_end=0.0625
         self.gamma=0.05
-        self.gamma_end=0.125
+        self.gamma_end=0.0625
         self.total_reward=[0] 
-        self.alpha = 0.374625 
+        self.alpha = 0.75
     
     def set_action(self):
         #initially we want to prefer a random action, but later we would like to trust our experience.
@@ -567,7 +567,7 @@ class LearningAgent(BasicLearningAgent):
         
         #initially we should have a very low gamma, as we can't trust our knowledge.
         # as time goes by we should give more weight to our knowledge and grow gamma.
-        rate=16 #-> higher is slower
+        rate=32 #-> higher is slower
         self.gamma=self.gamma+(self.gamma_end-self.gamma)/rate
                 
         #Set the new value in the Q table based on the Q-learning method
@@ -609,11 +609,11 @@ class LearningAgent(BasicLearningAgent):
 print "LearningAgent Ready"
 
 
-# In[39]:
+# In[53]:
 
 def runGrid(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
-
+    from time import time
     # Set up environment and agent
     
     if gui ==False:
@@ -621,17 +621,20 @@ def runGrid(agentType,trials=10, gui=False, deadline=True, delay=0):
         redirector.suppress_output()
         delay=0 
 
-    # NOTE: To speed up simulation, reduce update_delay and/or set display=False
+    # NOTE: To speed up simulation, reduce update_delay and/or set display=False 
+    # change these values with caution, as they significantly affect run time
     run = 16
     values=16
-    iterations=10
+    iterations=11
     all_successcounts=[]
     for r in range(run):       
         for v in range(values):
             for s in range(values):
                 # Now simulate it
                 success_counts=[]
-                for i in range(iterations):                
+                timer=[]
+                for i in range(iterations):     
+                    starttime=time()
                     e = Environment()  # create environment (also adds some dummy traffic)
                     a = e.create_agent(agentType)  # create agent
                     e.set_primary_agent(a, enforce_deadline=deadline)  # specify agent to track
@@ -644,25 +647,39 @@ def runGrid(agentType,trials=10, gui=False, deadline=True, delay=0):
                     sim = Simulator(e, update_delay=delay, display=gui)  # create simulator (uses pygame when display=True, if available)
                     sim.run(n_trials=trials)  # run for a specified number of trials      
                     success_counts.append(a.goal)
-
-                all_successcounts.append({'success_counts_avg':np.mean(success_counts), 'alpha':a.alpha,'gamma':a.gamma,'epsilon' :a.epsilon_end})
+                    timer.append(time()-starttime)
+                all_successcounts.append({
+                        'time_avg':np.mean(timer),
+                        'success_counts_avg':np.mean(success_counts), 
+                        'alpha':a.alpha,
+                        'gamma':a.gamma,
+                        'epsilon' :a.epsilon_end})
 
     if gui ==False:
         redirector.reset()  
-    print "best success:"
-    #print all_successcounts
-    all_success_data=pd.DataFrame(all_successcounts)
-    #display(all_success_data)
-    display(all_success_data[all_success_data.success_counts_avg==max(all_success_data.success_counts_avg)])
+        
+    return pd.DataFrame(all_successcounts)
     
-print "run ready"
+print "runGrid ready"
 
 
-# In[ ]:
+# In[54]:
 
 if console == False:
     print "run some tests searching for a best value."
-    runGrid(agentType=LearningAgent,trials=100, deadline=True,gui=console, delay=.1)
+    successCounts=runGrid(agentType=LearningAgent,trials=30, deadline=True,gui=console, delay=.1)
+    print "best success:"
+    #display(successCounts)
+    display(successCounts[successCounts.success_counts_avg==max(successCounts.success_counts_avg)])
+
+
+# In[55]:
+
+print "data sample:"
+display(successCounts.head(5))
+print "data description:"
+display(successCounts.describe())
+#display(successCounts[successCounts.success_counts_avg==max(successCounts.success_counts_avg)])
 
 
 # ## Enhance the driving agent - Discussion
@@ -670,7 +687,7 @@ if console == False:
 # 
 # In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is now initialized with random values, and we want to explore the available states, and record their effects. The opposite is true for gamma. In it's case, we would like to highly discount any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, and optimized these numbers further by implementing a grid search to test the values over multiple runs, etc. These were found to be:
 # 
-# alpha = 0.374625	   epsilon = 0.125	gamma= 0.125	success_counts_avg = 91.92
+#       alpha = 0.75  epsilon = 0.0625  gamma = 0.0625
 # 		
 # We could also implement methods to adjust these rates based on factors other than time, for example based on the difference between the current and new values in the Q table for the state, but my initial attempts haven't been successful in finding a model that learns as fast as the current implementations.
 # 
@@ -681,7 +698,7 @@ if console == False:
 
 # ---------------------------------------------------------------
 
-# In[38]:
+# In[60]:
 
 if __name__ == '__main__':
     print  "running...."
