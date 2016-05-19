@@ -521,7 +521,7 @@ if console == False:
 # 
 # Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties?
 
-# In[13]:
+# In[33]:
 
 class LearningAgent(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -538,11 +538,11 @@ class LearningAgent(BasicLearningAgent):
         self.features=[]
         self.Qtable={}
         self.epsilon=0.95
-        self.epsilon_end=0.0625
+        self.epsilon_end=0.03125
         self.gamma=0.05
-        self.gamma_end=0.0625
+        self.gamma_end=0.125
         self.total_reward=[0] 
-        self.alpha = 0.75
+        self.alpha = 0.5
     
     def set_action(self):
         #initially we want to prefer a random action, but later we would like to trust our experience.
@@ -608,7 +608,7 @@ class LearningAgent(BasicLearningAgent):
 print "LearningAgent Ready"
 
 
-# In[27]:
+# In[30]:
 
 def runGrid(agentType,trials=10, gui=False, deadline=True, delay=0):
     """Run the agent for a finite number of trials."""
@@ -662,7 +662,7 @@ def runGrid(agentType,trials=10, gui=False, deadline=True, delay=0):
 print "runGrid ready"
 
 
-# In[28]:
+# In[31]:
 
 if console == False:
     trials=30 # enough that the agent has enough time to learn to success at least a few times, in most cases.
@@ -674,7 +674,7 @@ if console == False:
     display(successCounts[successCounts.success_counts_avg==max(successCounts.success_counts_avg)])
 
 
-# In[29]:
+# In[32]:
 
 if console == False:   
     print "data sample:"
@@ -689,7 +689,7 @@ if console == False:
 # 
 # In addition to tuning the final epsilon and gamma, I have added the ability for each to adjust the amount they affect the outcome over time. Initially we want to prefer a random action, as our table is now initialized with random values, and we want to explore the available states, and record their effects. The opposite is true for gamma. In it's case, we would like to highly discount any initial knowledge initially, and over time grow to trust what we know. My implementation allows us to control the rate of change over time of each. I have selected starting/ending values and rates based on experimentation, and optimized these numbers further by implementing a grid search to test the values over multiple runs, etc. These were found to be:
 # 
-#       alpha = 0.75  epsilon = 0.0625  gamma = 0.0625
+#       alpha = 0.5  epsilon = 0.03125  gamma = 0.125
 # 		
 # We could also implement methods to adjust these rates based on factors other than time, for example based on the difference between the current and new values in the Q table for the state, but my initial attempts haven't been successful in finding a model that learns as fast as the current implementations.
 # 
@@ -700,7 +700,7 @@ if console == False:
 
 # ---------------------------------------------------------------
 
-# In[17]:
+# In[34]:
 
 if __name__ == '__main__':
     print  "running...."
