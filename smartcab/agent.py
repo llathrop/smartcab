@@ -476,7 +476,7 @@ if console == False:
     print "Basic Q Learning Agent done"
 
 
-# In[12]:
+# In[41]:
 
 class BasicLearningAgent2(BasicLearningAgent):
     """An agent that learns to drive in the smartcab world."""
@@ -700,7 +700,7 @@ if console == False:
 
 # ---------------------------------------------------------------
 
-# In[34]:
+# In[38]:
 
 if __name__ == '__main__':
     print  "running...."
